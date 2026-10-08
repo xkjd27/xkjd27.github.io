@@ -202,17 +202,82 @@ else
 python3 - "$TMP" "$IMG/layouts.js" <<'PY'
 import json, os, sys
 src, out = sys.argv[1], sys.argv[2]
+SCHEMES = ('27', '27c', 'keytao')
+STROKES = ('乛', '丨', '丶', '丿', '㇐')      # 笔形；落键只由各方案的 shapeMap 决定
+
 data = {}
-for k in ('27', '27c', 'keytao'):
+for k in SCHEMES:
     with open(os.path.join(src, 'layout-%s.json' % k), encoding='utf-8') as fh:
         data[k] = json.load(fh)
+
+def key2stroke(layout):                     # 键位 -> 笔形（笔形键的 stroke 字段就是笔形）
+    m = {}
+    for ch, d in layout['keys'].items():
+        for s in d.get('stroke') or ():
+            if s in STROKES:
+                m[ch] = s
+    return m
+
+def shapes_of(k, layout):                   # 纯形码表：笔形 -> [字, 码]，码写成笔形
+    k2s = key2stroke(layout)
+    shapes = {}
+    for p in STROKES:
+        ch = next((c for c, s in k2s.items() if s == p), None)
+        if ch is None:
+            sys.exit('✗ %s 的键位表里没有 %s 笔形键' % (k, p))
+        entries = []
+        for t, code in layout['keys'][ch].get('shape') or []:
+            for c in code:
+                if c not in k2s:
+                    sys.exit('✗ %s 的 %s（%s 键）码里有非笔形键的字母 %s' % (k, t, ch, c))
+            entries.append([t, ''.join(k2s[c] for c in code)])
+        shapes[p] = entries
+    for c, d in layout['keys'].items():      # 笔码只挂在笔形键上；挂到别处就没地方存了，停手
+        if c not in k2s and (d.get('shape') or []):
+            sys.exit('✗ %s 的 %s 键上有笔码，共用的 FLOW_SHAPES 只能挂在笔形键上' % (k, c))
+    return shapes
+
+# 网页只存一份纯形码表（三套方案的笔码本来就一样，只是落键不同）。
+# 哪套方案的笔码不一样了，这里就报错停手 —— 别悄悄丢掉某一套的笔码。
+shapes = shapes_of(SCHEMES[0], data[SCHEMES[0]])
+for k in SCHEMES[1:]:
+    if shapes_of(k, data[k]) != shapes:
+        sys.exit('✗ %s 的笔码和 %s 对不上：共用的 FLOW_SHAPES 装不下，得先拆回各方案各存一份'
+                 % (k, SCHEMES[0]))
+
+layouts = {}
+for k in SCHEMES:
+    layout = data[k]
+    k2s = key2stroke(layout)
+    stroke2key = {p: c for c, p in k2s.items()}          # 笔形 -> 本方案的键位
+    fields = {
+        'keyboard': layout['keyboard'],
+        'keys': {c: {f: d.get(f) or [] for f in ('sheng', 'stroke', 'yun')}   # 笔码在共用的 FLOW_SHAPES 里
+                 for c, d in sorted(layout['keys'].items())},
+        'name': layout['name'],
+        'rows': layout['rows'],
+        'shapeKeys': layout['shapeKeys'],
+        'shapeMap': {p: stroke2key[p] for p in STROKES if p in stroke2key},
+        'soundKeys': layout['soundKeys'],
+        'title': layout['title'],
+    }
+    layouts[k] = fields
+
 with open(out, 'w', encoding='utf-8') as fh:
     fh.write('/* 由 tools/wasm-build/export-data.sh 生成：')
-    fh.write('键位表来自各方案 layout.py + 纯形码表。和 docs/layout.png 同一份计算。 */\n')
+    fh.write('键位表来自各方案 layout.py + 纯形码表。和 docs/layout.png 同一份计算。 */\n\n')
+    fh.write('/* 纯形码表：三套方案的笔码是同一份（只有落键不同），所以只存这里一遍。\n')
+    fh.write('   码里写的是笔形（乛 丨 丶 丿 ㇐），各方案的 shapeMap 负责把它换算成自己的键位。\n')
+    fh.write('   改笔码改这里。 */\n')
+    fh.write('window.FLOW_SHAPES = ')
+    json.dump(shapes, fh, ensure_ascii=False, indent=1)
+    fh.write(';\n\n')
     fh.write('window.FLOW_LAYOUTS = ')
-    json.dump(data, fh, ensure_ascii=False, sort_keys=True, indent=1)
+    json.dump(layouts, fh, ensure_ascii=False, indent=1)          # 字段顺序上面写死了，不用 sort_keys
     fh.write(';\n')
-print('写出 %s（%s）' % (out, ', '.join('%s %d 键' % (k, len(v['keys'])) for k, v in sorted(data.items()))))
+print('写出 %s（%s；笔码表 %d 条共用）' % (
+    out, ', '.join('%s %d 键' % (k, len(v['keys'])) for k, v in sorted(layouts.items())),
+    sum(len(v) for v in shapes.values())))
 PY
 fi
 

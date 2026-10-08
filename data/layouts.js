@@ -1,10 +1,59 @@
 /* 由 tools/wasm-build/export-data.sh 生成：键位表来自各方案 layout.py + 纯形码表。和 docs/layout.png 同一份计算。 */
+
+/* 纯形码表：三套方案的笔码是同一份（只有落键不同），所以只存这里一遍。
+   码里写的是笔形（乛 丨 丶 丿 ㇐），各方案的 shapeMap 负责把它换算成自己的键位。
+   改笔码改这里。 */
+window.FLOW_SHAPES = {
+ "乛": [
+  ["氵",""],
+  [
+   "贝",
+   "丶"
+  ]
+ ],
+ "丶": [
+  ["口", ""],
+  [
+   "日",
+   "丨"
+  ]
+ ],
+ "丿": [
+  ["月", ""],
+  [
+   "十",
+   "丶"
+  ],
+ ],
+ "㇐": [
+  ["木", ""],
+  [
+   "土",
+   "丶"
+  ],
+ ],
+ "丨": [
+  ["亻", ""],
+  [
+   "艹",
+   "丨"
+  ],
+  [
+   "钅",
+   "丶"
+  ],
+  [
+   "扌",
+   "丿"
+  ],
+ ]
+};
+
 window.FLOW_LAYOUTS = {
  "27": {
   "keyboard": "qwerty",
   "keys": {
    ";": {
-    "shape": [],
     "sheng": [
      "zh"
     ],
@@ -14,96 +63,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "a": {
-    "shape": [
-     [
-      "コ",
-      "v"
-     ],
-     [
-      "ユ",
-      "v"
-     ],
-     [
-      "丩",
-      "i"
-     ],
-     [
-      "凵",
-      "i"
-     ],
-     [
-      "卩",
-      "i"
-     ],
-     [
-      "厶",
-      "o"
-     ],
-     [
-      "又",
-      "o"
-     ],
-     [
-      "廴",
-      "o"
-     ],
-     [
-      "贝",
-      "o"
-     ],
-     [
-      "阝",
-      "i"
-     ],
-     [
-      "卂",
-      "vi"
-     ],
-     [
-      "巛",
-      "aa"
-     ],
-     [
-      "彐",
-      "vv"
-     ],
-     [
-      "彑",
-      "av"
-     ],
-     [
-      "纟",
-      "av"
-     ],
-     [
-      "夬",
-      "vuo"
-     ],
-     [
-      "毌",
-      "aiv"
-     ],
-     [
-      "疋",
-      "ivuo"
-     ],
-     [
-      "癶",
-      "ouuo"
-     ],
-     [
-      "叚",
-      "vivva"
-     ],
-     [
-      "夋",
-      "ououa"
-     ],
-     [
-      "糸",
-      "aoiuo"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "乛"
@@ -111,7 +70,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "b": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -120,7 +78,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "c": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -128,7 +85,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "d": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -137,7 +93,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "e": {
-    "shape": [],
     "sheng": [
      "sh"
     ],
@@ -147,7 +102,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "f": {
-    "shape": [],
     "sheng": [
      "y"
     ],
@@ -157,7 +111,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "g": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -166,7 +119,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "h": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -175,64 +127,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "i": {
-    "shape": [
-     [
-      "〢",
-      "i"
-     ],
-     [
-      "リ",
-      "u"
-     ],
-     [
-      "冂",
-      "a"
-     ],
-     [
-      "刂",
-      "i"
-     ],
-     [
-      "手",
-      "u"
-     ],
-     [
-      "扌",
-      "u"
-     ],
-     [
-      "艹",
-      "i"
-     ],
-     [
-      "金",
-      "o"
-     ],
-     [
-      "钅",
-      "o"
-     ],
-     [
-      "⺌",
-      "ou"
-     ],
-     [
-      "佥",
-      "voou"
-     ],
-     [
-      "屵",
-      "aivu"
-     ],
-     [
-      "氺",
-      "ovuo"
-     ],
-     [
-      "罒",
-      "aiiv"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丨"
@@ -240,7 +134,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "j": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -249,7 +142,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "k": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -257,7 +149,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "l": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -266,7 +157,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "m": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -274,7 +164,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "n": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -282,84 +171,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "o": {
-    "shape": [
-     [
-      "丷",
-      "u"
-     ],
-     [
-      "亠",
-      "v"
-     ],
-     [
-      "冖",
-      "a"
-     ],
-     [
-      "冫",
-      "v"
-     ],
-     [
-      "日",
-      "i"
-     ],
-     [
-      "讠",
-      "a"
-     ],
-     [
-      "丬",
-      "vi"
-     ],
-     [
-      "宀",
-      "oa"
-     ],
-     [
-      "忄",
-      "oi"
-     ],
-     [
-      "氵",
-      "ov"
-     ],
-     [
-      "肙",
-      "uu"
-     ],
-     [
-      "辶",
-      "ao"
-     ],
-     [
-      "冘",
-      "aua"
-     ],
-     [
-      "灬",
-      "ooo"
-     ],
-     [
-      "礻",
-      "aio"
-     ],
-     [
-      "疒",
-      "vuov"
-     ],
-     [
-      "衤",
-      "aiuo"
-     ],
-     [
-      "啇",
-      "vouia"
-     ],
-     [
-      "屰",
-      "uvaiu"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丶"
@@ -367,7 +178,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "p": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -375,7 +185,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "q": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -384,7 +193,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "r": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -392,7 +200,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "s": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -401,7 +208,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "t": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -409,88 +215,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "u": {
-    "shape": [
-     [
-      "⺈",
-      "a"
-     ],
-     [
-      "㐅",
-      "o"
-     ],
-     [
-      "亻",
-      "i"
-     ],
-     [
-      "几",
-      "a"
-     ],
-     [
-      "勹",
-      "a"
-     ],
-     [
-      "匕",
-      "a"
-     ],
-     [
-      "十",
-      "o"
-     ],
-     [
-      "𠂉",
-      "v"
-     ],
-     [
-      "夂",
-      "ao"
-     ],
-     [
-      "彡",
-      "uu"
-     ],
-     [
-      "犭",
-      "au"
-     ],
-     [
-      "饣",
-      "aa"
-     ],
-     [
-      "厃",
-      "avu"
-     ],
-     [
-      "攵",
-      "vuo"
-     ],
-     [
-      "爫",
-      "oou"
-     ],
-     [
-      "牜",
-      "viv"
-     ],
-     [
-      "耂",
-      "ovu"
-     ],
-     [
-      "钅",
-      "vvva"
-     ],
-     [
-      "夅",
-      "aovai"
-     ],
-     [
-      "𢦏",
-      "ovauo"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丿"
@@ -498,68 +222,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "v": {
-    "shape": [
-     [
-      "丆",
-      "u"
-     ],
-     [
-      "匚",
-      "a"
-     ],
-     [
-      "土",
-      "o"
-     ],
-     [
-      "士",
-      "o"
-     ],
-     [
-      "𠂇",
-      "u"
-     ],
-     [
-      "廾",
-      "ui"
-     ],
-     [
-      "扌",
-      "iv"
-     ],
-     [
-      "艹",
-      "ii"
-     ],
-     [
-      "旡",
-      "aua"
-     ],
-     [
-      "龶",
-      "viv"
-     ],
-     [
-      "龷",
-      "iiv"
-     ],
-     [
-      "𡗗",
-      "vvuo"
-     ],
-     [
-      "畐",
-      "oiavi"
-     ],
-     [
-      "疌",
-      "avviv"
-     ],
-     [
-      "覀",
-      "iaiiv"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "㇐"
@@ -567,7 +229,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "w": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -576,7 +237,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "x": {
-    "shape": [],
     "sheng": [
      "~"
     ],
@@ -587,7 +247,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "y": {
-    "shape": [],
     "sheng": [
      "ch"
     ],
@@ -598,7 +257,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "z": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -613,6 +271,13 @@ window.FLOW_LAYOUTS = {
    "zxcvbnm"
   ],
   "shapeKeys": "aiouv",
+  "shapeMap": {
+   "乛": "a",
+   "丨": "i",
+   "丶": "o",
+   "丿": "u",
+   "㇐": "v"
+  },
   "soundKeys": ";bcdefghjklmnpqrstwxyz",
   "title": ""
  },
@@ -620,7 +285,6 @@ window.FLOW_LAYOUTS = {
   "keyboard": "colemak",
   "keys": {
    ";": {
-    "shape": [],
     "sheng": [
      "zh"
     ],
@@ -630,96 +294,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "a": {
-    "shape": [
-     [
-      "コ",
-      "v"
-     ],
-     [
-      "ユ",
-      "v"
-     ],
-     [
-      "丩",
-      "i"
-     ],
-     [
-      "凵",
-      "i"
-     ],
-     [
-      "卩",
-      "i"
-     ],
-     [
-      "厶",
-      "o"
-     ],
-     [
-      "又",
-      "o"
-     ],
-     [
-      "廴",
-      "o"
-     ],
-     [
-      "贝",
-      "o"
-     ],
-     [
-      "阝",
-      "i"
-     ],
-     [
-      "卂",
-      "vi"
-     ],
-     [
-      "巛",
-      "aa"
-     ],
-     [
-      "彐",
-      "vv"
-     ],
-     [
-      "彑",
-      "av"
-     ],
-     [
-      "纟",
-      "av"
-     ],
-     [
-      "夬",
-      "veo"
-     ],
-     [
-      "毌",
-      "aiv"
-     ],
-     [
-      "疋",
-      "iveo"
-     ],
-     [
-      "癶",
-      "oeeo"
-     ],
-     [
-      "叚",
-      "vivva"
-     ],
-     [
-      "夋",
-      "oeoea"
-     ],
-     [
-      "糸",
-      "aoieo"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "乛"
@@ -727,7 +301,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "b": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -736,7 +309,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "c": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -744,7 +316,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "d": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -753,88 +324,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "e": {
-    "shape": [
-     [
-      "⺈",
-      "a"
-     ],
-     [
-      "㐅",
-      "o"
-     ],
-     [
-      "亻",
-      "i"
-     ],
-     [
-      "几",
-      "a"
-     ],
-     [
-      "勹",
-      "a"
-     ],
-     [
-      "匕",
-      "a"
-     ],
-     [
-      "十",
-      "o"
-     ],
-     [
-      "𠂉",
-      "v"
-     ],
-     [
-      "夂",
-      "ao"
-     ],
-     [
-      "彡",
-      "ee"
-     ],
-     [
-      "犭",
-      "ae"
-     ],
-     [
-      "饣",
-      "aa"
-     ],
-     [
-      "厃",
-      "ave"
-     ],
-     [
-      "攵",
-      "veo"
-     ],
-     [
-      "爫",
-      "ooe"
-     ],
-     [
-      "牜",
-      "viv"
-     ],
-     [
-      "耂",
-      "ove"
-     ],
-     [
-      "钅",
-      "vvva"
-     ],
-     [
-      "夅",
-      "aovai"
-     ],
-     [
-      "𢦏",
-      "ovaeo"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丿"
@@ -842,7 +331,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "f": {
-    "shape": [],
     "sheng": [
      "y"
     ],
@@ -852,7 +340,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "g": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -860,7 +347,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "h": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -869,64 +355,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "i": {
-    "shape": [
-     [
-      "〢",
-      "i"
-     ],
-     [
-      "リ",
-      "e"
-     ],
-     [
-      "冂",
-      "a"
-     ],
-     [
-      "刂",
-      "i"
-     ],
-     [
-      "手",
-      "e"
-     ],
-     [
-      "扌",
-      "e"
-     ],
-     [
-      "艹",
-      "i"
-     ],
-     [
-      "金",
-      "o"
-     ],
-     [
-      "钅",
-      "o"
-     ],
-     [
-      "⺌",
-      "oe"
-     ],
-     [
-      "佥",
-      "vooe"
-     ],
-     [
-      "屵",
-      "aive"
-     ],
-     [
-      "氺",
-      "oveo"
-     ],
-     [
-      "罒",
-      "aiiv"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丨"
@@ -934,7 +362,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "j": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -943,7 +370,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "k": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -951,7 +377,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "l": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -959,7 +384,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "m": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -967,7 +391,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "n": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -976,84 +399,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "o": {
-    "shape": [
-     [
-      "丷",
-      "e"
-     ],
-     [
-      "亠",
-      "v"
-     ],
-     [
-      "冖",
-      "a"
-     ],
-     [
-      "冫",
-      "v"
-     ],
-     [
-      "日",
-      "i"
-     ],
-     [
-      "讠",
-      "a"
-     ],
-     [
-      "丬",
-      "vi"
-     ],
-     [
-      "宀",
-      "oa"
-     ],
-     [
-      "忄",
-      "oi"
-     ],
-     [
-      "氵",
-      "ov"
-     ],
-     [
-      "肙",
-      "ee"
-     ],
-     [
-      "辶",
-      "ao"
-     ],
-     [
-      "冘",
-      "aea"
-     ],
-     [
-      "灬",
-      "ooo"
-     ],
-     [
-      "礻",
-      "aio"
-     ],
-     [
-      "疒",
-      "veov"
-     ],
-     [
-      "衤",
-      "aieo"
-     ],
-     [
-      "啇",
-      "voeia"
-     ],
-     [
-      "屰",
-      "evaie"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丶"
@@ -1061,7 +406,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "p": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1069,7 +413,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "q": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1078,7 +421,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "r": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1087,7 +429,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "s": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1096,7 +437,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "t": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1104,7 +444,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "u": {
-    "shape": [],
     "sheng": [
      "sh"
     ],
@@ -1115,68 +454,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "v": {
-    "shape": [
-     [
-      "丆",
-      "e"
-     ],
-     [
-      "匚",
-      "a"
-     ],
-     [
-      "土",
-      "o"
-     ],
-     [
-      "士",
-      "o"
-     ],
-     [
-      "𠂇",
-      "e"
-     ],
-     [
-      "廾",
-      "ei"
-     ],
-     [
-      "扌",
-      "iv"
-     ],
-     [
-      "艹",
-      "ii"
-     ],
-     [
-      "旡",
-      "aea"
-     ],
-     [
-      "龶",
-      "viv"
-     ],
-     [
-      "龷",
-      "iiv"
-     ],
-     [
-      "𡗗",
-      "vveo"
-     ],
-     [
-      "畐",
-      "oiavi"
-     ],
-     [
-      "疌",
-      "avviv"
-     ],
-     [
-      "覀",
-      "iaiiv"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "㇐"
@@ -1184,7 +461,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "w": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1193,7 +469,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "x": {
-    "shape": [],
     "sheng": [
      "~"
     ],
@@ -1204,7 +479,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "y": {
-    "shape": [],
     "sheng": [
      "ch"
     ],
@@ -1214,7 +488,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "z": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1229,6 +502,13 @@ window.FLOW_LAYOUTS = {
    "zxcvbkm"
   ],
   "shapeKeys": "aeiov",
+  "shapeMap": {
+   "乛": "a",
+   "丨": "i",
+   "丶": "o",
+   "丿": "e",
+   "㇐": "v"
+  },
   "soundKeys": ";bcdfghjklmnpqrstuwxyz",
   "title": ""
  },
@@ -1236,96 +516,6 @@ window.FLOW_LAYOUTS = {
   "keyboard": "qwerty",
   "keys": {
    "a": {
-    "shape": [
-     [
-      "コ",
-      "v"
-     ],
-     [
-      "ユ",
-      "v"
-     ],
-     [
-      "丩",
-      "i"
-     ],
-     [
-      "凵",
-      "i"
-     ],
-     [
-      "卩",
-      "i"
-     ],
-     [
-      "厶",
-      "o"
-     ],
-     [
-      "又",
-      "o"
-     ],
-     [
-      "廴",
-      "o"
-     ],
-     [
-      "贝",
-      "o"
-     ],
-     [
-      "阝",
-      "i"
-     ],
-     [
-      "卂",
-      "vi"
-     ],
-     [
-      "巛",
-      "aa"
-     ],
-     [
-      "彐",
-      "vv"
-     ],
-     [
-      "彑",
-      "av"
-     ],
-     [
-      "纟",
-      "av"
-     ],
-     [
-      "夬",
-      "vuo"
-     ],
-     [
-      "毌",
-      "aiv"
-     ],
-     [
-      "疋",
-      "ivuo"
-     ],
-     [
-      "癶",
-      "ouuo"
-     ],
-     [
-      "叚",
-      "vivva"
-     ],
-     [
-      "夋",
-      "ououa"
-     ],
-     [
-      "糸",
-      "aoiuo"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "乛"
@@ -1333,7 +523,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "b": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1342,7 +531,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "c": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1350,7 +538,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "d": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1359,7 +546,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "e": {
-    "shape": [],
     "sheng": [
      "sh"
     ],
@@ -1369,7 +555,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "f": {
-    "shape": [],
     "sheng": [
      "zh"
     ],
@@ -1379,7 +564,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "g": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1388,7 +572,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "h": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1397,64 +580,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "i": {
-    "shape": [
-     [
-      "〢",
-      "i"
-     ],
-     [
-      "リ",
-      "u"
-     ],
-     [
-      "冂",
-      "a"
-     ],
-     [
-      "刂",
-      "i"
-     ],
-     [
-      "手",
-      "u"
-     ],
-     [
-      "扌",
-      "u"
-     ],
-     [
-      "艹",
-      "i"
-     ],
-     [
-      "金",
-      "o"
-     ],
-     [
-      "钅",
-      "o"
-     ],
-     [
-      "⺌",
-      "ou"
-     ],
-     [
-      "佥",
-      "voou"
-     ],
-     [
-      "屵",
-      "aivu"
-     ],
-     [
-      "氺",
-      "ovuo"
-     ],
-     [
-      "罒",
-      "aiiv"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丨"
@@ -1462,7 +587,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "j": {
-    "shape": [],
     "sheng": [
      "ch"
     ],
@@ -1473,7 +597,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "k": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1481,7 +604,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "l": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1491,7 +613,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "m": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1500,7 +621,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "n": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1508,84 +628,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "o": {
-    "shape": [
-     [
-      "丷",
-      "u"
-     ],
-     [
-      "亠",
-      "v"
-     ],
-     [
-      "冖",
-      "a"
-     ],
-     [
-      "冫",
-      "v"
-     ],
-     [
-      "日",
-      "i"
-     ],
-     [
-      "讠",
-      "a"
-     ],
-     [
-      "丬",
-      "vi"
-     ],
-     [
-      "宀",
-      "oa"
-     ],
-     [
-      "忄",
-      "oi"
-     ],
-     [
-      "氵",
-      "ov"
-     ],
-     [
-      "肙",
-      "uu"
-     ],
-     [
-      "辶",
-      "ao"
-     ],
-     [
-      "冘",
-      "aua"
-     ],
-     [
-      "灬",
-      "ooo"
-     ],
-     [
-      "礻",
-      "aio"
-     ],
-     [
-      "疒",
-      "vuov"
-     ],
-     [
-      "衤",
-      "aiuo"
-     ],
-     [
-      "啇",
-      "vouia"
-     ],
-     [
-      "屰",
-      "uvaiu"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丶"
@@ -1593,7 +635,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "p": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1601,7 +642,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "q": {
-    "shape": [],
     "sheng": [
      "zh"
     ],
@@ -1612,7 +652,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "r": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1620,7 +659,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "s": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1629,7 +667,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "t": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1637,88 +674,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "u": {
-    "shape": [
-     [
-      "⺈",
-      "a"
-     ],
-     [
-      "㐅",
-      "o"
-     ],
-     [
-      "亻",
-      "i"
-     ],
-     [
-      "几",
-      "a"
-     ],
-     [
-      "勹",
-      "a"
-     ],
-     [
-      "匕",
-      "a"
-     ],
-     [
-      "十",
-      "o"
-     ],
-     [
-      "𠂉",
-      "v"
-     ],
-     [
-      "夂",
-      "ao"
-     ],
-     [
-      "彡",
-      "uu"
-     ],
-     [
-      "犭",
-      "au"
-     ],
-     [
-      "饣",
-      "aa"
-     ],
-     [
-      "厃",
-      "avu"
-     ],
-     [
-      "攵",
-      "vuo"
-     ],
-     [
-      "爫",
-      "oou"
-     ],
-     [
-      "牜",
-      "viv"
-     ],
-     [
-      "耂",
-      "ovu"
-     ],
-     [
-      "钅",
-      "vvva"
-     ],
-     [
-      "夅",
-      "aovai"
-     ],
-     [
-      "𢦏",
-      "ovauo"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "丿"
@@ -1726,68 +681,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "v": {
-    "shape": [
-     [
-      "丆",
-      "u"
-     ],
-     [
-      "匚",
-      "a"
-     ],
-     [
-      "土",
-      "o"
-     ],
-     [
-      "士",
-      "o"
-     ],
-     [
-      "𠂇",
-      "u"
-     ],
-     [
-      "廾",
-      "ui"
-     ],
-     [
-      "扌",
-      "iv"
-     ],
-     [
-      "艹",
-      "ii"
-     ],
-     [
-      "旡",
-      "aua"
-     ],
-     [
-      "龶",
-      "viv"
-     ],
-     [
-      "龷",
-      "iiv"
-     ],
-     [
-      "𡗗",
-      "vvuo"
-     ],
-     [
-      "畐",
-      "oiavi"
-     ],
-     [
-      "疌",
-      "avviv"
-     ],
-     [
-      "覀",
-      "iaiiv"
-     ]
-    ],
     "sheng": [],
     "stroke": [
      "㇐"
@@ -1795,7 +688,6 @@ window.FLOW_LAYOUTS = {
     "yun": []
    },
    "w": {
-    "shape": [],
     "sheng": [
      "ch"
     ],
@@ -1806,7 +698,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "x": {
-    "shape": [],
     "sheng": [
      "~"
     ],
@@ -1817,7 +708,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "y": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1826,7 +716,6 @@ window.FLOW_LAYOUTS = {
     ]
    },
    "z": {
-    "shape": [],
     "sheng": [],
     "stroke": [],
     "yun": [
@@ -1841,6 +730,13 @@ window.FLOW_LAYOUTS = {
    "zxcvbnm"
   ],
   "shapeKeys": "aiouv",
+  "shapeMap": {
+   "乛": "a",
+   "丨": "i",
+   "丶": "o",
+   "丿": "u",
+   "㇐": "v"
+  },
   "soundKeys": "bcdefghjklmnpqrstwxyz",
   "title": ""
  }

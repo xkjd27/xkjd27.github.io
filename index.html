@@ -91,11 +91,12 @@ code,kbd{font-family:var(--mono);font-size:.92em}
   display:flex;flex-direction:column;transition:border-color .12s,box-shadow .12s,transform .1s}
 .key .name{font:600 13.5px/1 var(--mono);color:#eef1f5;letter-spacing:.02em}
 .key .top{margin-left:auto;text-align:right;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
-.key .sheng{font:640 15px/1.15 var(--mono);color:var(--sheng);position:absolute;top:0.5em}
-.key .stroke{font:600 15px/1.15 var(--mono);color:var(--shape);position:absolute;top:0.7em}
+.key .sheng{font:640 15px/1.15 var(--mono);color:var(--sheng);position:absolute;top:0.5em;right:1em}
+.key .iden{font:600 15px/1.15 var(--mono);color:var(--shape);position:absolute;top:0.5em}
+.key .stroke{font:600 15px/1.15 var(--mono);color:var(--stroke);position:absolute;top:0.5em;left:1.5em;}
 .key .bot{margin-top:auto}
 .key .yun{font:600 15px/1.3 var(--sans);color:var(--yun)}
-.key .shapes{display:flex;flex-wrap:wrap;gap:2px 8px;justify-content:center}
+.key .shapes{display:flex;flex-wrap:wrap;gap:0px 5px;justify-content:center;align-items: center;margin-top:4px}
 .key .shapes .it{font-size:13.5px;color:var(--shape);white-space:nowrap}
 .key .shapes .it i{font-style:normal;color:var(--shape2);font-size:12px;font-family:var(--mono)}
 .key.hot{border-color:var(--gold);box-shadow:0 0 0 2px rgba(233,163,60,.22);transform:translateY(-2px)}
@@ -106,6 +107,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
   .key .name{font-size:13px}
   .key .sheng,.key .stroke{font-size:15px}
   .key .shapes{display:none}
+  .key .iden{display:none}
   .key .yun{font-size:14.5px}
   .key .shapes .it{font-size:13px}
   .kbd-row{gap:7px}
@@ -505,7 +507,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '12';
+  const BUILD = '13';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
@@ -527,7 +529,8 @@ window.__loaded.then(function () {
   'use strict';
   const $ = (s) => document.querySelector(s);
   const SCHEMES = window.FLOW_SCHEMES, ORDER = window.FLOW_ORDER;
-  const LAYOUTS = window.FLOW_LAYOUTS || {}, DEMOS = window.FLOW_DEMOS || {};
+  const LAYOUTS = window.FLOW_LAYOUTS || {}, SHAPES = window.FLOW_SHAPES || {};
+  const DEMOS = window.FLOW_DEMOS || {};
   const SIZES = window.FLOW_IMAGE_SIZES || {};
   const SPEED = (() => {
     const q = parseFloat(new URLSearchParams(location.search).get('speed'));
@@ -536,33 +539,52 @@ window.__loaded.then(function () {
 
   /* ------------------------------------------------------------- 键盘图 */
   const KBD_ROWS = 3;
+
+  /* 纯形码表（FLOW_SHAPES：笔形 -> [字, 笔形码]）是三套方案共用的；每个方案只记
+     自己「笔形落在哪个键」（L.shapeMap）。这里按它摊回每个键位上，顺便把码里的
+     笔形换成本方案的键位字母。 */
+  function shapesByKey(L) {
+    const map = L.shapeMap || {}, out = {};
+    for (const stroke in SHAPES) {
+      const ch = map[stroke];
+      if (!ch) continue;
+      out[ch] = SHAPES[stroke].map(([t, code]) =>
+        [t, [...code].map((c) => map[c] || c).join('')]);
+    }
+    return out;
+  }
+
   function renderKeyboard(key, animate) {
     const L = LAYOUTS[key];
     const box = $('#kbd');
     box.innerHTML = '';
     if (!L) { box.textContent = '（这个方案的键位表还没导出）'; return; }
+    const shapeOf = shapesByKey(L);              /* 键位 -> [字, 本方案的笔码] */
     let n = 0;                                  /* 键帽淡入的错开序号 */
     L.rows.forEach((row, i) => {
       const el = document.createElement('div');
       el.className = 'kbd-row';
       el.style.paddingLeft = (i * 50) + 'px';        // 一点错位，像真键盘
       for (const ch of row) {
-        const d = L.keys[ch] || { sheng: [], yun: [], stroke: [], shape: [] };
+        const d = L.keys[ch] || { sheng: [], yun: [], stroke: [] };
+        const mine = shapeOf[ch] || [];
+        console.log(mine);
         const k = document.createElement('div');
-        k.className = 'key' + ((d.sheng.length + d.yun.length + d.stroke.length + d.shape.length) ? '' : ' empty');
+        k.className = 'key' + ((d.sheng.length + d.yun.length + d.stroke.length + mine.length) ? '' : ' empty');
         k.dataset.key = ch;
         if (animate) {                          /* 错开淡入：从左到右、一行一行 */
           k.classList.add('fade');
           k.style.animationDelay = Math.min(150 + n * 12, 480) + 'ms';
         }
         n++;
-        const shapes = (d.shape || []).slice(0, 4)
+        const shapes = mine.slice(1, 4)
           .map(([t, r]) => '<span class="it">' + t + (r ? '<i>' + r + '</i>' : '') + '</span>').join('');
         k.innerHTML =
           '<div class="name">' + ch.toUpperCase() + '</div>' +
           '<div class="top">' +
             (d.sheng.length ? '<span class="sheng">' + d.sheng.join(' ') + '</span>' : '') +
             (d.stroke.length ? '<span class="stroke">' + d.stroke.join(' ') + '</span>' : '') +
+            (d.stroke.length ? '<span class="iden">' + mine.slice(0,1).slice(0,1)[0][0] + '</span>' : '') +
           '</div>' +
           '<div class="bot">' +
             (d.yun.length ? '<div class="yun">' + d.yun.join(' ') + '</div>' : '') +

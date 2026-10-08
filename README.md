@@ -26,10 +26,14 @@ web/data/base.img      共享数据 + lua 引擎 + 配置（约 30 KB，进页�
 web/data/keytao.img    键道・函流：方案文件 + 词库产物（1.1 MB）
 web/data/27.img        贰柒・函流（7.0 MB）
 web/data/27c.img       贰柒C・函流（7.0 MB）
-web/data/layouts.js    键位表（键位图 + 体验模式的「哪些键交给引擎」都靠它）
+web/data/layouts.js    键位表（键位图 + 体验模式的「哪些键交给引擎」都靠它）+ 共用的纯形码表
 web/data/demos.js      三套演示的按键序列（录音脚本生成，见下）
 web/data/sizes.js      各镜像体积（页面上那句「首次点开要下 7.0 MB」）
 ```
+
+* `layouts.js` 里三套方案的**笔码是同一份**（`FLOW_SHAPES`，码用笔形 乛 丨 丶 丿 ㇐ 写，
+  键位图每个笔形键下面就摆这份），各方案只记自己笔形键的**落键**（`shapeMap`）——
+  改笔码只改一处；27C 的 丿 落在 `e` 上，渲染时自动把码里的 丿 换成 `e`。
 
 * 页面本身**不阻塞**：tab、键位图、卡片都是静态渲染的，只有预览框走进度条。
 * 镜像**按需下载**：点哪个 tab 才拉哪个方案；拉完 `rime_wasm_shutdown()` +

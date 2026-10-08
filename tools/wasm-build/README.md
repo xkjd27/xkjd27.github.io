@@ -110,7 +110,7 @@ lua 和键位表工具都从 `flow_engine` 的 master 取，一份引擎服务�
 | `web/data/base.img` | `export-data.sh` | **公共镜像**：共享数据 + lua 引擎 + 配置（~30 KB，进页面就挂） |
 | `web/data/27c.img` `27.img` | 同上 | 贰柒C / 贰柒：方案文件 + 词库产物（各 ~7 MB，点 tab 才拉） |
 | `web/data/keytao.img` | 同上 | 键道（~1.1 MB） |
-| `web/data/layouts.js` | 同上 | 键位表（键位图 + 体验模式「哪些键交给引擎」都读它） |
+| `web/data/layouts.js` | 同上 | 键位表（键位图 + 体验模式「哪些键交给引擎」都读它）+ 三套方案共用的纯形码表（`FLOW_SHAPES`，各方案只记笔形键的落键 `shapeMap`） |
 | `web/data/sizes.js` | 同上 | 各镜像体积（页面上「首次点开要下 7.0 MB」那句话） |
 | `web/rime.js` `web/rime.wasm` | `build-librime.sh` | librime + lua + LZMA 解码器的 wasm 模块（~2.7 MB） |
 | `web/data/demos.js` | **不是这套脚本** | 演示剧本，由 `tools/record_demo.py` 录出来（另一个工具链，在仓库外） |

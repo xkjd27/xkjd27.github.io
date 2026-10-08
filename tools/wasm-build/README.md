@@ -184,7 +184,13 @@ build-all.sh
 | 镜像 | 内容 | 什么时候拉 |
 | --- | --- | --- |
 | `base.img` | `shared/` + `user/lua/` + `default.custom.yaml` + `build/default.yaml` | 进页面（几十 KB） |
-| `<方案>.img` | 该方案的 yaml / 单字表 / 形码表 / 次简表 + `build/<方案>.*` | 点它的 tab 时 |
+| `<方案>.img` | 该方案的 yaml / 单字表 / 形码表 / 声笔简码默认表 / 次简表 + `build/<方案>.*` | 点它的 tab 时 |
+
+`<方案>.img` 里那几份 yaml **少一份对应的功能就整个失灵**：lua 引擎运行时直接读它们
+（`flow_codes.lua` 读 `.danzi.dict.yaml` + `.shape.dict.yaml`，`flow_shengbi.lua` 读
+`.shengbi.dict.yaml`，`flow_secondary.lua` 读 `.secondary.yaml`），而 `.ice.dict.yaml` /
+`.simp.dict.yaml` 这类主词库源码只是部署的输入、运行时不读，不进镜像（编译产物在
+`build/` 里）。加新数据文件时记得同步 `export-data.sh` 里的 `cp` 清单。
 
 拉完新镜像后前端会 `rime_wasm_shutdown()` + `rime_wasm_init()` 重启一次引擎
 再 `select_schema()` —— 方案文件是 initialize 之后才挂上的，重来一遍最稳。

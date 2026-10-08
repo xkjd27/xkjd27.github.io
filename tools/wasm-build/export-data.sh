@@ -130,14 +130,17 @@ rm -rf "$OUT"
 mkdir -p "$OUT/shared" "$OUT/user/lua" "$OUT/user/build"
 cp "$SHARED/default.yaml" "$SHARED/symbols.yaml" "$OUT/shared/" 2>/dev/null || true
 
-# 运行时要读的：方案（含 flow_engine 键位）、形码表、单字表、次简表。
-# 主词库源码（*.ice.dict.yaml / *.keytao.dict.yaml / *.simp.dict.yaml）只是部署的
-# 输入，运行时不读，不进镜像；编译产物在 user/build/ 里。
+# 运行时要读的：方案（含 flow_engine 键位）、形码表、单字表、声笔简码默认表、次简表。
+# 这四份 yaml 是 lua 引擎直接读的（flow_codes 读 danzi + shape.dict，
+# flow_shengbi 读 shengbi.dict，flow_secondary 读 secondary），少一份对应的
+# 功能就整个失灵（少 shengbi 就是声笔简码全打不出来）；主词库源码
+# （*.ice.dict.yaml / *.keytao.dict.yaml / *.simp.dict.yaml）只是部署的输入，
+# 运行时不读，不进镜像；编译产物在 user/build/ 里。
 for k in $KEYS; do
   id=$(scheme_id "$k")
   cp "$TMP/user/$id.schema.yaml" "$TMP/user/$id.shape.txt" \
      "$TMP/user/$id.danzi.dict.yaml" "$TMP/user/$id.shape.dict.yaml" \
-     "$TMP/user/$id.secondary.yaml" "$OUT/user/"
+     "$TMP/user/$id.shengbi.dict.yaml" "$TMP/user/$id.secondary.yaml" "$OUT/user/"
 done
 cp "$TMP"/user/lua/*.lua "$OUT/user/lua/"
 cp "$TMP"/user/build/* "$OUT/user/build/"

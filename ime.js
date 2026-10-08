@@ -27,6 +27,8 @@
 const PACE = {
   normal: 200, slow: 500, hit: 340, promote: 520, commit: 700,
   title: 660, gap: 840, reset: 900, eraseKey: 120, eraseChar: 110, end: 1200,
+  /* 两处「讲慢一点」的地方：顶功上屏的一瞬、每组码第一次按 - 之前 */
+  top: 620, preMinus: 1000,
 };
 
 const KEYCODE = { space: 0x20, Tab: 0xff09, Enter: 0xff0d, Esc: 0xff1b, BackSpace: 0xff08 };
@@ -589,6 +591,9 @@ class ImePreview {
 
   /* -------------------------------------------------------------- 演示 */
   t(name) { return Math.max(25, Math.round((PACE[name] || PACE.normal) * this.speed)); }
+
+  /** 空格 / 回车是「明着上屏」，不算顶功 */
+  isCommitKey(k) { return k === ' ' || k === 'space' || k === 'Enter'; }
   sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
   /** 预览框滚出视口：停掉演示并把界面复位（回来时从头再演一遍） */
@@ -644,14 +649,28 @@ class ImePreview {
         await this.sleep(this.t('title'));
         if (my !== this.token) return;
         if (step.kind === 'erase') { await this.eraseAll(my); continue; }
+        let minusSeen = false;               /* 这一组码里按过 - 没有 */
         for (const key of step.keys) {
           if (my !== this.token) return;
+          if (key === '-') {
+            /* 调频：一组码里第一次按 - 之前停一下，看清「现在要排码了」 */
+            if (!minusSeen) {
+              this.showKey('-');
+              await this.sleep(this.t('preMinus'));
+              if (my !== this.token) return;
+            }
+            minusSeen = true;
+          } else {
+            minusSeen = false;
+          }
           const before = this.stateNow();
           const { commit, st } = this.feed(key);
           this.lastCands = before.candidates || [];
           this.applyState(st, key);
           this.lastCands = st.candidates || [];
-          await this.sleep(this.t(step.pace) + (commit ? this.t('hit') : 0));
+          /* 顶功：这一键把上一个词顶上屏、同时开始组下一个词 —— 停一下让人看清 */
+          const top = commit && st.preedit && !this.isCommitKey(key);
+          await this.sleep(this.t(step.pace) + (commit ? this.t('hit') : 0) + (top ? this.t('top') : 0));
         }
         if (step.promote) await this.promoteToTop(my);
         if (step.commit) {

@@ -238,6 +238,12 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .btn.tiny{font-size:13.5px;padding:7px 14px;border-radius:999px;background:var(--bg2);
   border:1px solid var(--line2);color:var(--dim)}
 .btn.tiny:hover{color:var(--fg)}
+.btn .ico-dl{width:13px;height:13px;display:inline-block;position:relative}
+.btn .ico-dl::before{content:'';position:absolute;left:5.6px;top:0;width:1.8px;height:7px;
+  background:currentColor;border-radius:1px}
+.btn .ico-dl::after{content:'';position:absolute;left:2.4px;top:3.4px;width:6.4px;height:6.4px;
+  border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;
+  border-radius:1px;transform:rotate(45deg)}
 
 /* -------------------------------------------------------------- 概念卡片 */
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
@@ -375,6 +381,8 @@ code,kbd{font-family:var(--mono);font-size:.92em}
         <button id="btnFree"><i class="ico-key"></i>体验</button>
       </span>
       <button class="btn tiny" id="btnClear" style="display:none">清空我的数据</button>
+      <a class="btn tiny" id="btnDl" href="https://github.com/xkjd27/rime_keytao_flow/releases"
+         target="_blank" rel="noreferrer"><i class="ico-dl"></i>下载 RIME 方案</a>
       <span class="ime-status" id="status">演示中 · 点击体验按钮尝试输入</span>
     </div>
   </section>
@@ -451,7 +459,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '6';
+  const BUILD = '7';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
                  'data/demos.js', 'ime.js'];
@@ -560,6 +568,12 @@ window.__loaded.then(function () {
       '<div class="line">' + s.blurb + '</div>' +
       '<div class="sub">' + (s.note || '')
       '</div>';
+    const dl = $('#btnDl');
+    if (dl && s.repo) {
+      dl.href = s.repo + '/releases';           /* 跟着当前 tab 走 */
+      dl.title = '到 GitHub 下载 ' + s.name + ' 的 RIME 方案（' +
+                 s.repo.replace('https://github.com/', '') + '）';
+    }
     renderKeyboard(key, animate !== false);
     hotKey(null);
     if (animate !== false) {

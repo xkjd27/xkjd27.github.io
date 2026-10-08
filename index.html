@@ -180,16 +180,26 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 /* 默认不显示；按到 空格 / - / = 时瞬间冒出来，停一下再淡出缩小 */
 .ime-hud{position:absolute;right:18px;bottom:16px;opacity:0;
   animation:none;display:flex;align-items:flex-end;gap:12px;
-  background:rgba(14,17,22,.94);border:1px solid var(--line2);border-radius:12px;padding:10px 12px;
+  background:rgba(14,17,22,.94);border:1px solid var(--line2);border-radius:14px;padding:12px 14px;
   box-shadow:0 10px 26px rgba(0,0,0,.5)}
-.ime-hud.pop{animation:hudPop 1.15s cubic-bezier(.2,.7,.2,1) both}
+.ime-hud.pop{animation:hudPop 1.9s cubic-bezier(.2,.7,.2,1) both}
 @keyframes hudPop{
   0%{opacity:1;transform:scale(1) translateY(0)}
-  58%{opacity:1;transform:scale(1) translateY(0)}
-  100%{opacity:0;transform:scale(.86) translateY(6px)}
+  64%{opacity:1;transform:scale(1) translateY(0)}
+  100%{opacity:0;transform:scale(.88) translateY(8px)}
+}
+/* 按 - 吃掉的那颗形码：往下掉、慢慢转、淡出（像被磕掉的） */
+.drop{position:absolute;z-index:4;pointer-events:none;user-select:none;
+  font:600 20px/1 var(--mono);color:var(--shape);
+  animation:dropFall .95s cubic-bezier(.32,.02,.86,.5) forwards}
+@keyframes dropFall{
+  0%{opacity:1;transform:translate(0,0) rotate(0deg)}
+  18%{transform:translate(calc(var(--dx,0px) * .35),-9px) rotate(calc(var(--rot,14deg) * .3))}
+  100%{opacity:0;transform:translate(var(--dx,8px),86px) rotate(var(--rot,16deg))}
 }
 @media (prefers-reduced-motion:reduce){
   .ime-hud.pop{animation:none;opacity:1}
+  .drop{display:none}
 }
 .ime-hud .now{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:74px}
 .ime-cap{width:58px;height:58px;border-radius:12px;display:grid;place-items:center;
@@ -203,16 +213,11 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .ime-cap.gray{border-color:#49505d;color:#c3ccd8;background:linear-gradient(#343a45,#22262e)}
 .ime-caplbl{font-size:11.5px;color:var(--dim);text-align:center;min-height:15px;white-space:nowrap}
 .ime-caplbl.gold{color:var(--gold)}
-.ime-trail{display:flex;align-items:center;gap:5px;padding-bottom:18px}
-.mini{width:25px;height:25px;border-radius:7px;display:grid;place-items:center;background:#252b34;
-  border:1px solid #3a4250;color:#c7d0dc;font:12px/1 var(--mono)}
-.mini.small{font-size:9.5px}
-.mini.gold{border-color:var(--gold);color:#ffd479;background:#3a2e12}
 @media (max-width:700px){
   .ime-ta,.ime-ov{font-size:17px}
   .ime-ta{padding:20px 16px 40px}
   .cd{font-size:18px;padding:6px 14px}
-  .ime-hud{scale:.86;transform-origin:bottom right;right:8px;bottom:8px}
+  .ime-hud{scale:.85;transform-origin:bottom right;right:8px;bottom:8px}
 }
 .ime-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
 .seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden}
@@ -348,7 +353,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
         <div class="ime-doc">
           <textarea class="ime-ta" spellcheck="false" autocapitalize="off" autocomplete="off" readonly aria-label="输入演示"></textarea>
           <div class="ime-ov"></div>
-          <div class="ime-tipline">点这里可以直接打字试试（体验模式）</div>
+          <div class="ime-tipline">直接在这里打字试试</div>
         </div>
         <div class="ime-skel">
           <div class="sk a"></div><div class="sk b"></div><div class="sk c"></div>
@@ -359,7 +364,6 @@ code,kbd{font-family:var(--mono);font-size:.92em}
         </div>
         <div class="ime-cands"></div>
         <div class="ime-hud">
-          <div class="ime-trail"></div>
           <div class="now">
             <div class="ime-cap">·</div>
             <div class="ime-caplbl">加载中</div>
@@ -453,7 +457,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '2';
+  const BUILD = '4';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
                  'data/demos.js', 'ime.js'];

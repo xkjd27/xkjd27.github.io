@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>wasm 冒烟测试</title>
+<style>body{font:13px/1.6 ui-monospace,Menlo,monospace;background:#111;color:#ddd;padding:14px}
+pre{background:#1b1b1b;padding:10px;border-radius:8px;white-space:pre-wrap}</style>
+</head><body>
+<h3>wasm 冒烟测试</h3>
+<p>挂 base + 一个方案，select 之后打几组键看候选；换方案 <code>?scheme=27c</code>。</p>
+<pre id="log">loading…</pre>
+<script src="rime-data.js"></script>
+<script>
+const SCHEMES = { keytao: ['keytao.img', 'keytao_flow'], '27': ['27.img', 'xkjd27_flow'], '27c': ['27c.img', 'xkjd27c_flow'] };
+const which = new URLSearchParams(location.search).get('scheme') || 'keytao';
+const log = (s) => { document.querySelector('#log').textContent += '\n' + s; };
+loadScript(asset('rime.js')).then(() => createRime({ locateFile: (f) => asset(f) })).then(async (M) => {
+  const call = (n, r, a, v) => M.ccall(n, r, a, v);
+  const [img, schema] = SCHEMES[which] || SCHEMES.keytao;
+  for (const i of ['data/base.img', 'data/' + img]) await loadRimeData(M, call, { asset, image: i });
+  call('rime_wasm_init', 'number', ['string', 'string'], ['/shared', '/user']);
+  log('select ' + schema + ' -> ' + call('rime_wasm_select', 'number', ['string'], [schema]));
+  for (const keys of ['nps', 'skeb', 'gm', 'sync']) {
+    for (const k of keys) call('rime_wasm_key', 'number', ['number', 'number'], [k.charCodeAt(0), 0]);
+    const st = JSON.parse(call('rime_wasm_state', 'string', [], []));
+    log(keys + ' -> input=' + JSON.stringify(st.input) + ' 候选：' +
+        (st.candidates || []).slice(0, 5).map((c) => c.text + (c.comment ? '·' + c.comment : '')).join(' '));
+  }
+}).catch((e) => log('失败：' + (e && e.message || e)));
+</script>
+</body></html>

@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>函流输入法 · 音码 + 形码的筛选式输入</title>
+<meta name="description" content="函流输入法：音码打头、形码收尾的筛选式中文输入，带实时排码与造词。键位图与候选由浏览器里真跑的 librime 现算。">
+<style>
+/* ---------------------------------------------------------------------------
+   圆角规则（全页统一）：卡片 / 键帽 / 窗口 14px，标签与按键 8px，胶囊按钮全圆。
+   配色：近黑底 + 单一强调色（琥珀），音/形/码这些是「内容色」，跟着方案图走：
+   声母红 · 韵母蓝 · 笔形与字根绿（和 docs/layout.png 一致）。
+--------------------------------------------------------------------------- */
+:root{
+  --bg:#0c0e12; --bg2:#14171d; --bg3:#191d24; --line:#242932; --line2:#2f3540;
+  --fg:#e9ebee; --dim:#98a1ac; --dim2:#6a7481;
+  --gold:#e9a33c; --gold-dim:#8a6321;
+  --sheng:#ef6b78; --yun:#63a0ff; --shape:#5bc98f; --shape2:#8fd8b0;
+  --ok:#5bc98f; --warn:#ef6b78;
+  --sans:"PingFang SC","Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 var(--sans);
+  font-feature-settings:"tnum" 1;overflow-x:hidden}
+a{color:inherit}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em;line-height:1.25}
+p{margin:0}
+b,strong{font-weight:640;color:#fff}
+code,kbd{font-family:var(--mono);font-size:.92em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.sec{padding:76px 0 0}
+.sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.sec-head h2{font-size:26px}
+.sec-head .note{color:var(--dim);font-size:14.5px}
+.mono{font-family:var(--mono)}
+
+/* ------------------------------------------------------------------ 顶栏 */
+.nav{position:sticky;top:0;z-index:40;background:rgba(12,14,18,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .in{height:64px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:.01em;text-decoration:none}
+.brand .mark{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--gold),#b8722a);color:#1a1206;
+  font-weight:700;font-size:15px;font-family:var(--mono)}
+.nav .links{margin-left:auto;display:flex;gap:22px;font-size:14.5px;color:var(--dim)}
+.nav .links a{text-decoration:none}
+.nav .links a:hover{color:var(--fg)}
+@media (max-width:780px){ .nav .links{display:none} }
+
+/* ------------------------------------------------------------------- hero */
+.hero{padding:64px 0 0;max-width:900px}
+.hero h1{font-size:clamp(38px,7vw,66px);letter-spacing:-.025em;margin-bottom:16px}
+.hero .lede{font-size:18px;color:var(--dim);max-width:60ch;line-height:1.7}
+.hero .lede b{color:#fff;font-weight:600}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:34px 0 0}
+.tab{appearance:none;border:1px solid var(--line2);background:var(--bg2);color:var(--dim);
+  font:inherit;font-size:15px;padding:10px 18px;border-radius:999px;cursor:pointer;
+  transition:background .16s,border-color .16s,color .16s,transform .1s}
+.tab:hover{color:var(--fg);border-color:#3b424f}
+.tab:active{transform:scale(.98)}
+.tab[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:#1a1206;font-weight:600}
+
+.blurb{margin-top:22px;min-height:66px}
+.blurb .line{font-size:19px;line-height:1.6}
+.blurb .line b{color:var(--gold);font-weight:640}
+.blurb .sub{margin-top:8px;color:var(--dim2);font-size:14px}
+@media (max-width:700px){ .blurb .line{font-size:17px} }
+
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 0}
+.btn{appearance:none;font:inherit;font-size:15px;text-decoration:none;cursor:pointer;
+  padding:11px 22px;border-radius:999px;border:1px solid transparent;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:transform .1s,background .16s}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn.primary{background:var(--fg);color:#101319;font-weight:600}
+.btn.primary:hover{background:#fff}
+.btn.ghost{border-color:var(--line2);color:var(--dim)}
+.btn.ghost:hover{color:var(--fg);border-color:#3b424f}
+
+/* ------------------------------------------------------------------ 键盘 */
+.kbd{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:6px;
+  padding:22px 18px;background:linear-gradient(180deg,#12151a,#0e1116);
+  border:1px solid var(--line);border-radius:20px}
+.kbd-row{display:flex;gap:10px}
+.kbd-row[data-i="1"]{margin-left:calc((100% - 0px) * 0)}
+.key{position:relative;width:104px;height:104px;border-radius:14px;border:1px solid var(--line2);
+  background:linear-gradient(180deg,#1b2029,#151920);padding:9px 10px;
+  display:flex;flex-direction:column;transition:border-color .12s,box-shadow .12s,transform .1s}
+.key .name{font:600 13.5px/1 var(--mono);color:#eef1f5;letter-spacing:.02em}
+.key .top{margin-left:auto;text-align:right;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.key .sheng{font:640 15px/1.15 var(--mono);color:var(--sheng);letter-spacing:.06em}
+.key .stroke{font:600 15px/1.15 var(--mono);color:var(--shape)}
+.key .bot{margin-top:auto}
+.key .yun{font:600 15px/1.3 var(--sans);color:var(--yun)}
+.key .shapes{display:flex;flex-wrap:wrap;gap:2px 8px;justify-content:center}
+.key .shapes .it{font-size:13.5px;color:var(--shape);white-space:nowrap}
+.key .shapes .it i{font-style:normal;color:var(--shape2);font-size:12px;font-family:var(--mono)}
+.key.hot{border-color:var(--gold);box-shadow:0 0 0 2px rgba(233,163,60,.22);transform:translateY(-2px)}
+.key.empty{opacity:.42}
+@media (max-width:1060px){
+  .kbd{padding:16px 12px}
+  .key{width:84px;height:84px;padding:7px 8px}
+  .key .name{font-size:13px}
+  .key .sheng,.key .stroke{font-size:15px}
+  .key .yun{font-size:14.5px}
+  .key .shapes .it{font-size:13px}
+  .kbd-row{gap:7px}
+}
+@media (max-width:760px){
+  .kbd{overflow-x:auto;align-items:flex-start}
+  .kbd-row{flex-wrap:nowrap}
+  .key{width:74px;height:74px}
+  .key .shapes{display:none}
+  .key .yun{font-size:13px}
+}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;color:var(--dim);font-size:13.5px}
+.legend i{font-style:normal;display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px}
+.legend .l1 i{background:var(--sheng)} .legend .l2 i{background:var(--yun)}
+.legend .l3 i{background:var(--shape)} .legend .l4 i{background:var(--gold)}
+
+/* ---------------------------------------------------------------- 预览框 */
+.ime{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--bg2);
+  overflow:hidden;margin-top:6px}
+.ime-bar{height:38px;display:flex;align-items:center;gap:8px;padding:0 14px;
+  background:#101319;border-bottom:1px solid var(--line);color:var(--dim2);font-size:12.5px}
+.ime-bar i{width:10px;height:10px;border-radius:50%;background:#333944;display:block}
+.ime-bar .phase{margin-left:6px;color:#b9c0c9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ime-bar .live{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--dim2);white-space:nowrap}
+.ime-stage{position:relative;min-height:330px;display:flex}
+/* 已上屏的文字就在这块 textarea 里：光标、选区、复制粘贴、退格删除、撤销都是浏览器原生的 */
+.ime-doc{position:relative;flex:1;display:flex;min-height:330px}
+.ime-ta{flex:1;width:100%;height:330px;min-height:330px;margin:0;border:0;outline:none;
+  padding:26px 30px 46px;background:transparent;color:#f3f5f8;caret-color:var(--gold);
+  font:22px/1.6 var(--sans);white-space:pre-wrap;word-break:break-all;overflow:auto;
+  resize:none;tab-size:4}
+.ime-ta[readonly]{cursor:default;user-select:none;-webkit-user-select:none}
+/* 组字（preedit）浮层：绝对定位在 textarea 里组字开始的位置，带音 / 形配色 */
+.ime-ov{position:absolute;left:0;top:0;display:none;white-space:pre;pointer-events:none;z-index:3;
+  color:#e6e9ee;font:22px/1.6 var(--sans)}
+.ime-ov.on{display:block}
+.ime-ov .sh{color:var(--shape)}
+.ime-ov .mk{color:var(--gold)}
+.ime-mirror{position:absolute;left:0;top:0;visibility:hidden;pointer-events:none;z-index:-1}
+.ime-caret{display:inline-block;width:2px;height:1.02em;background:var(--gold);
+  vertical-align:-.18em;margin-left:1px;animation:blink 1.05s step-end infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.ime-tipline{position:absolute;left:30px;bottom:14px;font-size:12.5px;color:var(--dim2)}
+.ime-skel{position:absolute;inset:0;background:var(--bg2);display:flex;flex-direction:column;
+  justify-content:center;gap:14px;padding:0 30px}
+.ime-skel .sk{height:14px;border-radius:7px;background:linear-gradient(90deg,#1b2029,#242a34,#1b2029);
+  background-size:200% 100%;animation:sheen 1.4s linear infinite}
+.ime-skel .sk.a{width:62%} .ime-skel .sk.b{width:44%} .ime-skel .sk.c{width:72%;height:26px}
+@keyframes sheen{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.ime-prog{margin-top:6px}
+.ime-prog .t{font-size:13px;color:var(--dim);margin-bottom:8px;font-family:var(--mono)}
+.ime-prog .bar{height:6px;border-radius:4px;background:#20252e;overflow:hidden}
+.ime-prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#f0c070);
+  transition:width .18s ease}
+.ime-cands{position:absolute;left:0;top:0;background:#05070a;border:1px solid #000;border-radius:8px;
+  overflow:auto;overscroll-behavior:contain;min-width:120px;max-width:min(460px,calc(100% - 24px));display:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:5}
+.ime-cands.on{display:block}
+.cd{display:flex;align-items:center;gap:14px;height:38px;padding:0 16px 0 12px;color:#fff;
+  font-size:21px;white-space:nowrap;overflow:hidden}
+.cd:first-child{background:#2b6cd4}
+.cd.sec{background:#241a38}
+.cd .num{color:#5a626e;font-size:12px;width:12px;flex:0 0 12px;font-family:var(--mono)}
+.cd:first-child .num{color:#bcd4f7}
+.cd .txt{overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.cd .marks{margin-left:auto;padding-left:24px;display:flex;align-items:center;gap:8px}
+.cd .hint{font-size:13px;color:#c9d2de;font-family:var(--mono)}
+/* 记号画成图形，不靠 emoji 字体（高度可控，各行高度一致） */
+.mk{display:inline-block;flex:0 0 auto}
+.mk-block{position:relative;width:15px;height:15px;border-radius:50%;background:#e2493f}
+.mk-block::after{content:'';position:absolute;left:4px;top:6px;width:7px;height:2px;border-radius:1px;background:#fff}
+.mk-sec{width:9px;height:9px;background:#a97bff;transform:rotate(45deg)}
+.ime-stage.loading .ime-hud{opacity:0;pointer-events:none}
+.ime-hud{position:absolute;right:18px;bottom:16px;transition:opacity .18s;display:flex;align-items:flex-end;gap:12px;
+  background:rgba(14,17,22,.94);border:1px solid var(--line2);border-radius:12px;padding:10px 12px;
+  box-shadow:0 10px 26px rgba(0,0,0,.5)}
+.ime-hud .now{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:74px}
+.ime-cap{width:58px;height:58px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(#39404d,#232830);border:2px solid #4b5464;color:#fff;
+  font:600 26px/1 var(--mono);transition:transform .09s,box-shadow .15s,border-color .15s}
+.ime-cap.small{font-size:15px}
+.ime-cap.hit{transform:translateY(3px) scale(.96);border-color:var(--ok);
+  box-shadow:0 0 0 3px rgba(91,201,143,.2),0 0 20px rgba(91,201,143,.3)}
+.ime-cap.gold{border-color:var(--gold);color:#ffd479;background:linear-gradient(#463614,#251e10)}
+.ime-cap.gold.hit{border-color:#ffd479;box-shadow:0 0 0 4px rgba(233,163,60,.24),0 0 24px rgba(233,163,60,.45)}
+.ime-cap.gray{border-color:#49505d;color:#c3ccd8;background:linear-gradient(#343a45,#22262e)}
+.ime-caplbl{font-size:11.5px;color:var(--dim);text-align:center;min-height:15px;white-space:nowrap}
+.ime-caplbl.gold{color:var(--gold)}
+.ime-trail{display:flex;align-items:center;gap:5px;padding-bottom:18px}
+.mini{width:25px;height:25px;border-radius:7px;display:grid;place-items:center;background:#252b34;
+  border:1px solid #3a4250;color:#c7d0dc;font:12px/1 var(--mono)}
+.mini.small{font-size:9.5px}
+.mini.gold{border-color:var(--gold);color:#ffd479;background:#3a2e12}
+@media (max-width:700px){
+  .ime-ta,.ime-ov{font-size:17px}
+  .ime-ta{padding:20px 16px 40px}
+  .cd{font-size:18px;padding:6px 14px}
+  .ime-hud{transform:scale(.86);transform-origin:bottom right;right:8px;bottom:8px}
+}
+.ime-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden}
+.seg button{appearance:none;border:0;background:var(--bg2);color:var(--dim);font:inherit;font-size:14px;
+  padding:8px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.seg button:hover{color:var(--fg)}
+.seg button.on{background:var(--gold);color:#1a1206;font-weight:600}
+.seg .ico-play{width:0;height:0;border-left:9px solid currentColor;border-top:5.5px solid transparent;
+  border-bottom:5.5px solid transparent;display:inline-block}
+.seg .ico-key{width:14px;height:11px;border:1.5px solid currentColor;border-radius:3px;display:inline-block;
+  position:relative}
+.seg .ico-key::after{content:'';position:absolute;left:3px;bottom:2px;width:5px;height:1.5px;background:currentColor}
+.ime-status{color:var(--dim2);font-size:13.5px;font-family:var(--mono)}
+.btn.tiny{font-size:13.5px;padding:7px 14px;border-radius:999px;background:var(--bg2);
+  border:1px solid var(--line2);color:var(--dim)}
+.btn.tiny:hover{color:var(--fg)}
+
+/* -------------------------------------------------------------- 概念卡片 */
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media (max-width:860px){ .cards{grid-template-columns:1fr} }
+.card{border:1px solid var(--line);border-radius:14px;background:var(--bg2);padding:24px 24px 22px;
+  display:flex;flex-direction:column;gap:12px;min-height:240px}
+.card.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:34px;min-height:0}
+.card.wide .txt{flex:1 1 auto;min-width:0}
+.card.wide .viz{flex:0 0 auto}
+@media (max-width:860px){ .card.wide{flex-direction:column;align-items:stretch;gap:18px} }
+.card h3{font-size:19px;display:flex;align-items:center;gap:9px}
+.card h3 .k{font:600 13px/1 var(--mono);color:var(--gold);border:1px solid var(--gold-dim);
+  border-radius:8px;padding:4px 7px}
+.card p{color:var(--dim);font-size:15px;line-height:1.72}
+.card p b{color:#fff}
+.viz{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto}
+.chip{font:600 14px/1 var(--mono);padding:7px 10px;border-radius:8px;border:1px solid var(--line2);
+  background:#101319;color:#dfe4ea;white-space:nowrap}
+.chip.sheng{border-color:#5c2a33;color:var(--sheng);background:#1d1315}
+.chip.shape{border-color:#25543c;color:var(--shape);background:#111a15}
+.chip.gold{border-color:var(--gold-dim);color:var(--gold);background:#1b1610}
+.arrow{color:var(--dim2);font-size:15px}
+.ladder{display:flex;align-items:center;gap:8px;width:100%}
+.ladder .rung{height:8px;border-radius:4px;background:#252b34;flex:1}
+.ladder .rung.on{background:linear-gradient(90deg,var(--gold),#f0c070)}
+.stage{position:relative;height:104px;width:206px;border-radius:12px;background:#101319;
+  border:1px solid var(--line);overflow:hidden}
+.stage .w{position:absolute;font:600 14px/1 var(--mono);padding:7px 10px;border-radius:8px;
+  border:1px solid #2b3340;background:#161b22;color:#cfd6df;
+  transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s}
+.stage .w.a{left:14px;bottom:14px}
+.stage .w.b{left:104px;bottom:56px;color:var(--gold);border-color:var(--gold-dim)}
+.stage .up{position:absolute;left:16px;bottom:30px;color:var(--gold);font-size:13px;opacity:0;
+  transition:opacity .4s}
+.stage.go .w.a{transform:translateY(-30px);opacity:.3}
+.stage.go .up{opacity:1}
+/* 切 tab 时下面这一整块重新淡入（键帽错开一点，像换了一套键位）。
+   时长偏长 + 一点延迟：镜像下载/解压那几帧主线程会让出去，动画不至于卡成跳帧。 */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.fade{animation:fadeUp .58s cubic-bezier(.16,.84,.3,1) backwards}
+.key.fade{animation-duration:.46s}
+@media (prefers-reduced-motion:reduce){ .fade{animation:none} }
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* ------------------------------------------------------------------ 页脚 */
+.foot{margin-top:88px;border-top:1px solid var(--line);padding:30px 0 54px;color:var(--dim2);font-size:14px}
+.foot .repos{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.foot a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line2)}
+.foot a:hover{color:var(--fg)}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap in">
+    <a class="brand" href="#top"><span class="mark">函</span>函流输入法</a>
+    <nav class="links">
+      <a href="#layout">键位</a>
+      <a href="#preview">试打</a>
+      <a href="#concepts">四个概念</a>
+      <a href="https://github.com/xkjd27" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top" class="wrap">
+
+  <!-- ------------------------------------------------------------ hero -->
+  <section class="hero">
+    <h1>函流输入法</h1>
+    <p class="lede">音码打头、形码收尾的筛选式输入：<b>音码先打，不够再加形码</b>；
+      常用的词自己排到最短码，不常用的按提示键补两下就到手。排码、造词都是实时的。</p>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="方案"></div>
+    <div class="blurb" id="blurb" role="tabpanel"></div>
+
+    <div class="cta">
+      <button class="btn primary" id="btnTry">试试打字</button>
+      <a class="btn ghost" href="#concepts">看看四个概念</a>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- 键位图 -->
+  <section class="sec" id="layout">
+    <div class="sec-head">
+      <h2>键位</h2>
+      <span class="note" id="kbdNote">—</span>
+    </div>
+    <div class="kbd" id="kbd"></div>
+    <div class="legend">
+      <span class="l1"><i></i>声母（红）</span>
+      <span class="l2"><i></i>韵母（蓝）</span>
+      <span class="l3"><i></i>笔形与字根（绿）</span>
+      <span class="l4"><i></i>排码键 <code>-</code> / <code>=</code>（预览里按下会亮）</span>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ 预览 -->
+  <section class="sec" id="preview">
+    <div class="sec-head">
+      <h2>打给你看</h2>
+      <span class="note">下面这台是真 librime（WebAssembly）在浏览器里跑，候选、提示键、顶功、排码、造词都是它现算的。</span>
+    </div>
+
+    <div class="ime" id="ime">
+      <div class="ime-bar">
+        <i></i><i></i><i></i>
+        <span class="phase ime-phase">等待加载</span>
+        <span class="live ime-live">librime 1.13</span>
+      </div>
+      <div class="ime-stage">
+        <div class="ime-doc">
+          <textarea class="ime-ta" spellcheck="false" autocapitalize="off" autocomplete="off" readonly aria-label="输入演示"></textarea>
+          <div class="ime-ov"></div>
+          <div class="ime-tipline">点这里可以直接打字试试（体验模式）</div>
+        </div>
+        <div class="ime-skel">
+          <div class="sk a"></div><div class="sk b"></div><div class="sk c"></div>
+          <div class="ime-prog">
+            <div class="t" id="progText">正在准备 librime…</div>
+            <div class="bar"><i id="progBar"></i></div>
+          </div>
+        </div>
+        <div class="ime-cands"></div>
+        <div class="ime-hud">
+          <div class="ime-trail"></div>
+          <div class="now">
+            <div class="ime-cap">·</div>
+            <div class="ime-caplbl">加载中</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ime-ctl">
+      <span class="seg">
+        <button id="btnDemo" class="on"><i class="ico-play"></i>演示</button>
+        <button id="btnFree"><i class="ico-key"></i>体验</button>
+      </span>
+      <button class="btn tiny" id="btnClear" style="display:none">清空我的数据</button>
+      <span class="ime-status" id="status">—</span>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------ 四个概念 -->
+  <section class="sec" id="concepts">
+    <div class="sec-head">
+      <h2>四个概念</h2>
+      <span class="note">一台输入法最要紧的四件事，都在上面那台里跑着。</span>
+    </div>
+
+    <div class="cards">
+      <div class="card reveal">
+        <h3><span class="k">双形</span>音码 + 形码</h3>
+        <p>音码打不全就不打了，接着补形码（笔形或字根）。候选右边的提示键<b>就是还差的那几键</b>，
+          按下去它就到首选——不用在几十个同音字里数数字。</p>
+        <div class="viz">
+          <span class="chip sheng">s y u b</span><span class="arrow">+</span>
+          <span class="chip shape">i</span><span class="arrow">→</span>
+          <span class="chip gold">似水</span>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <h3><span class="k">顶功</span>不用按空格</h3>
+        <p>上一个词不用空格上屏：<b>下一个词的第一个键会把它顶上去</b>。
+          整句连着敲，键盘声是连贯的；页面上那个「顶」字就是这么来的。</p>
+        <div class="viz">
+          <div class="stage" id="stageTop">
+            <span class="w a">流年</span><span class="w b">往事</span><span class="up">↑ 顶</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <h3><span class="k">排码</span>打过的词自己往前站</h3>
+        <p>打对了的候选按 <code>-</code> 上调、<code>=</code> 降档；<b>调过的词会被记住</b>，
+          再打就一路往上排，直到变成一个最短码。</p>
+        <div class="viz">
+          <div class="ladder">
+            <span class="rung on"></span><span class="rung on"></span>
+            <span class="rung on"></span><span class="rung"></span><span class="rung"></span>
+          </div>
+          <span class="chip gold">-</span><span class="chip">=</span>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <h3><span class="k">造词</span>词库里没有也能打</h3>
+        <p>按 <code>`</code> 起造词，两段各按空格选上，再按 <code>-</code> 入库；
+          下次<b>一个码就打出来</b>——歇后语、长术语都这么攒起来。</p>
+        <div class="viz">
+          <span class="chip">`</span>
+          <span class="chip sheng">泥菩萨</span>
+          <span class="chip sheng">自身难保</span>
+          <span class="arrow">→</span><span class="chip shape">npsb</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="repos">
+      <a href="https://github.com/xkjd27/rime_keytao_flow" target="_blank" rel="noreferrer">rime_keytao_flow</a>
+      <a href="https://github.com/xkjd27/rime_jd27_flow" target="_blank" rel="noreferrer">rime_jd27_flow</a>
+      <a href="https://github.com/xkjd27/rime_jd27c_flow" target="_blank" rel="noreferrer">rime_jd27c_flow</a>
+      <a href="https://github.com/xkjd27/flow_engine" target="_blank" rel="noreferrer">flow_engine（共享 lua 引擎）</a>
+    </div>
+    <p>页面上那台输入法是真的：librime 1.13 + lua 插件编成 WebAssembly，方案与预编译词库随镜像下发。
+      数据只在你点开某个 tab 时下载，之后存在浏览器缓存里。</p>
+  </footer>
+</main>
+
+<script>
+/* 页面自己的脚本也吃 URL 上的 ?v=：不然改了 ime.js / data/*.js，浏览器还在用缓存里那份。
+   按顺序加载，加载完再跑下面的主脚本。 */
+window.__loaded = (function () {
+  /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
+     这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
+  const BUILD = '1';
+  const v = new URLSearchParams(location.search).get('v') || BUILD;
+  const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
+                 'data/demos.js', 'ime.js'];
+  return new Promise((res, rej) => {
+    (function next(i) {
+      if (i >= files.length) return res();
+      const s = document.createElement('script');
+      s.src = v ? files[i] + '?v=' + v : files[i];
+      s.onload = () => next(i + 1);
+      s.onerror = () => rej(new Error('加载失败 ' + files[i]));
+      document.head.appendChild(s);
+    })(0);
+  });
+})();
+</script>
+<script>
+window.__loaded.then(function () {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const SCHEMES = window.FLOW_SCHEMES, ORDER = window.FLOW_ORDER;
+  const LAYOUTS = window.FLOW_LAYOUTS || {}, DEMOS = window.FLOW_DEMOS || {};
+  const SIZES = window.FLOW_IMAGE_SIZES || {};
+  const SPEED = (() => {
+    const q = parseFloat(new URLSearchParams(location.search).get('speed'));
+    return (q > 0 && q <= 4) ? q : 0.5;
+  })();
+
+  /* ------------------------------------------------------------- 键盘图 */
+  const KBD_ROWS = 3;
+  function renderKeyboard(key, animate) {
+    const L = LAYOUTS[key];
+    const box = $('#kbd');
+    box.innerHTML = '';
+    if (!L) { box.textContent = '（这个方案的键位表还没导出）'; return; }
+    let n = 0;                                  /* 键帽淡入的错开序号 */
+    L.rows.forEach((row, i) => {
+      const el = document.createElement('div');
+      el.className = 'kbd-row';
+      el.style.marginLeft = (i * 18) + 'px';        // 一点错位，像真键盘
+      for (const ch of row) {
+        const d = L.keys[ch] || { sheng: [], yun: [], stroke: [], shape: [] };
+        const k = document.createElement('div');
+        k.className = 'key' + ((d.sheng.length + d.yun.length + d.stroke.length + d.shape.length) ? '' : ' empty');
+        k.dataset.key = ch;
+        if (animate) {                          /* 错开淡入：从左到右、一行一行 */
+          k.classList.add('fade');
+          k.style.animationDelay = Math.min(150 + n * 12, 480) + 'ms';
+        }
+        n++;
+        const shapes = (d.shape || []).slice(0, 4)
+          .map(([t, r]) => '<span class="it">' + t + (r ? '<i>' + r + '</i>' : '') + '</span>').join('');
+        k.innerHTML =
+          '<div class="name">' + ch.toUpperCase() + '</div>' +
+          '<div class="top">' +
+            (d.sheng.length ? '<span class="sheng">' + d.sheng.join(' ') + '</span>' : '') +
+            (d.stroke.length ? '<span class="stroke">' + d.stroke.join(' ') + '</span>' : '') +
+          '</div>' +
+          '<div class="bot">' +
+            (d.yun.length ? '<div class="yun">' + d.yun.join(' ') + '</div>' : '') +
+            (shapes ? '<div class="shapes">' + shapes + '</div>' : '') +
+          '</div>';
+        el.appendChild(k);
+      }
+      box.appendChild(el);
+    });
+    $('#kbdNote').textContent = (L.title || SCHEMES[key].name) + ' · ' + (SCHEMES[key].keyboard || '');
+  }
+
+  function hotKey(ch) {
+    const prev = document.querySelector('.key.hot');
+    if (prev) prev.classList.remove('hot');
+    if (!ch) return;
+    const k = document.querySelector('.key[data-key="' + ch.toLowerCase() + '"]');
+    if (k) k.classList.add('hot');
+  }
+
+  /* --------------------------------------------------------------- tabs */
+  let current = ORDER[0];
+  const tabs = $('#tabs');
+  ORDER.forEach((key) => {
+    const b = document.createElement('button');
+    b.className = 'tab';
+    b.type = 'button';
+    b.role = 'tab';
+    b.dataset.key = key;
+    b.textContent = SCHEMES[key].name;
+    b.onclick = () => useScheme(key);
+    tabs.appendChild(b);
+  });
+
+  function refade(el, delay) {
+    if (!el) return;
+    el.classList.remove('fade');
+    void el.offsetWidth;                        /* 强制重排，动画才会重播 */
+    if (delay) el.style.animationDelay = delay + 'ms';
+    el.classList.add('fade');
+    const ms = 600 + (delay || 0);
+    setTimeout(() => { el.classList.remove('fade'); el.style.animationDelay = ''; }, ms);
+  }
+
+  function paintScheme(key, animate) {
+    current = key;
+    for (const b of tabs.children) b.setAttribute('aria-selected', b.dataset.key === key);
+    const s = SCHEMES[key];
+    $('#blurb').innerHTML =
+      '<div class="line">' + s.blurb + '</div>' +
+      '<div class="sub">' + (s.note || '') +
+      (SIZES[key] ? '　·　首次点开要下 ' + SIZES[key] + ' 数据和词库，之后就存在浏览器里' : '') +
+      '</div>';
+    renderKeyboard(key, animate !== false);
+    hotKey(null);
+    if (animate !== false) {
+      refade($('#blurb'), 130);
+      refade($('.legend'), 320);
+      refade($('#ime'), 190);
+    }
+  }
+
+  /* --------------------------------------------------------------- 预览 */
+  const ime = new ImePreview($('#ime'), {
+    schemes: SCHEMES, order: ORDER, demos: DEMOS, layouts: LAYOUTS, speed: SPEED,
+    onKey: (k) => hotKey(k),
+    onStatus: (s) => { $('#status').textContent = s; },
+    onPhase: (s) => { $('.ime-phase').textContent = s; },
+    onProgress: (p, text) => {
+      $('#progBar').style.width = Math.round(Math.max(0, Math.min(1, p)) * 100) + '%';
+      if (text) $('#progText').textContent = text;
+    },
+  });
+
+  window.__ime = ime;              // 调试用（无头浏览器测试也靠它）
+
+  function skeleton(on, text) {
+    const sk = $('.ime-skel');
+    sk.style.display = on ? '' : 'none';
+    document.querySelector('.ime-stage').classList.toggle('loading', !!on);
+    if (text) $('#progText').textContent = text;
+  }
+
+  let bootPromise = null;
+  function ensureBoot() {
+    if (!bootPromise) {
+      bootPromise = ime.boot().then(() => {
+        skeleton(false);
+        $('.ime-caplbl').textContent = '就绪';
+      }).catch((e) => {
+        skeleton(true, '启动失败：' + ((e && e.message) || e));
+        $('#progBar').style.width = '100%';
+        $('#progBar').style.background = 'var(--warn)';
+        console.error(e);
+      });
+    }
+    return bootPromise;
+  }
+
+  async function useScheme(key) {
+    paintScheme(key);
+    skeleton(true, ime.ready ? '换 ' + SCHEMES[key].name + '：准备数据…' : '正在准备 librime…');
+    await ensureBoot();
+    if (!ime.ready) return;
+    await ime.useScheme(key);
+    skeleton(false);
+  }
+
+  /* 首次进入预览区才开始下载（页面其它部分是纯静态的，早就画好了） */
+  const io = new IntersectionObserver((ents) => {
+    for (const e of ents) if (e.isIntersecting) { io.disconnect(); ensureBoot(); }
+  }, { rootMargin: '200px' });
+  io.observe($('#ime'));
+
+  $('#btnTry').onclick = async () => {
+    $('#preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    await ensureBoot();
+    if (!ime.ready) return;
+    skeleton(false); await ime.setMode('free'); paintMode();
+  };
+  $('#btnDemo').onclick = async () => {
+    await ensureBoot(); if (!ime.ready) return;
+    skeleton(false); await ime.setMode('demo'); paintMode();
+  };
+  $('#btnFree').onclick = async () => {
+    await ensureBoot(); if (!ime.ready) return;
+    skeleton(false); await ime.setMode('free'); paintMode();
+  };
+  $('#btnClear').onclick = () => ime.clearUserData();
+
+  function paintMode() {
+    const free = ime.mode === 'free';
+    $('#btnDemo').classList.toggle('on', !free);
+    $('#btnFree').classList.toggle('on', free);
+    $('#btnClear').style.display = free ? '' : 'none';
+    $('.ime-tipline').style.display = free ? '' : 'none';
+  }
+
+  /* ---------------------------------------------------------- 动效/细节 */
+  const ro = new IntersectionObserver((ents) => {
+    let i = 0;
+    for (const e of ents) {
+      if (!e.isIntersecting) continue;
+      const el = e.target;
+      setTimeout(() => el.classList.add('in'), (i++) * 70);
+      ro.unobserve(el);
+    }
+  }, { rootMargin: '-40px' });
+  document.querySelectorAll('.reveal').forEach((el) => ro.observe(el));
+
+  const stage = $('#stageTop');
+  const so = new IntersectionObserver((ents) => {
+    for (const e of ents) {
+      if (!e.isIntersecting) continue;
+      stage.classList.add('go');
+      setTimeout(() => stage.classList.remove('go'), 2200);
+      so.unobserve(stage);
+    }
+  }, { rootMargin: '-60px' });
+  so.observe(stage);
+
+  /* 默认先把 tab 和键盘画出来：页面是静态渲染的，不等 wasm */
+  paintScheme(ORDER[0], true);
+  paintMode();
+  window.addEventListener('pagehide', () => ime.saveUserData(true));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && ime.mode === 'free') ime.saveUserData(true);
+  });
+}).catch((e) => {
+  const t = document.querySelector('#progText');
+  if (t) t.textContent = '脚本加载失败：' + ((e && e.message) || e);
+  console.error(e);
+});
+</script>
+</body>
+</html>

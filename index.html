@@ -34,6 +34,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .sec-head h2{font-size:26px}
 .sec-head .note{color:var(--dim);font-size:14.5px}
+.sec-head .repolink{margin-left:auto;font-family:var(--mono)}
 .mono{font-family:var(--mono)}
 
 /* ------------------------------------------------------------------ 顶栏 */
@@ -433,6 +434,8 @@ code,kbd{font-family:var(--mono);font-size:.92em}
     <div class="sec-head">
       <h2>了解详情</h2>
       <span class="note">函流输入法特性</span>
+      <a class="btn tiny repolink" id="btnRepo" href="https://github.com/xkjd27/rime_keytao_flow"
+         target="_blank" rel="noreferrer" title="跟着上面的 tab 走">前往 rime_keytao_flow ↗</a>
     </div>
 
     <div class="cards">
@@ -502,7 +505,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '11';
+  const BUILD = '12';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
@@ -612,11 +615,17 @@ window.__loaded.then(function () {
       '<div class="line">' + s.blurb + '</div>' +
       '<div class="sub">' + (s.note || '')
       '</div>';
+    const short = s.repo ? s.repo.replace('https://github.com/', '') : '';
     const dl = $('#btnDl');
-    if (dl && s.repo) {
-      dl.href = s.repo + '/releases';           /* 跟着当前 tab 走 */
-      dl.title = '到 GitHub 下载 ' + s.name + ' 的 RIME 方案（' +
-                 s.repo.replace('https://github.com/', '') + '）';
+    if (dl && s.repo) {                          /* 两颗按钮都跟着当前 tab 走 */
+      dl.href = s.repo + '/releases';
+      dl.title = '到 GitHub 下载 ' + s.name + ' 的 RIME 方案（' + short + '）';
+    }
+    const rp = $('#btnRepo');
+    if (rp && s.repo) {
+      rp.href = s.repo;
+      rp.textContent = '前往 ' + short + ' ↗';
+      rp.title = s.name + ' 的项目仓库：' + short;
     }
     renderKeyboard(key, animate !== false);
     hotKey(null);

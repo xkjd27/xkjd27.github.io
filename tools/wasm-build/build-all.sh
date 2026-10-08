@@ -176,4 +176,4 @@ ls -la "$WEB/data"/*.img | awk '{printf "  %9.2f KB  %s\n", $5/1024, $9}'
 echo
 md5sum "$WEB/data"/*.img
 echo
-echo "别忘了看一眼：$WEB/_probe.html（window.__ready === true 且三个方案都能出候选）"
+echo "别忘了起个静态服务看一眼主页（window.__ready === true 且三个方案都能出候选）"

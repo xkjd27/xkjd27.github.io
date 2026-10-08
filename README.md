@@ -121,10 +121,18 @@ python3 ../tools/record_demo.py
 资产带缓存穿透：`/?v=3` 会给 `rime.js` / `rime.wasm` / `data/*.img` / 页面自己的
 `*.js` 都带上 `?v=3`，改完刷新页面时记得加上。
 
-## 其它页面（都是开发工具，不是给人看的）
+## 控制台调试
 
-| 文件 | 说明 |
-| --- | --- |
-| `_probe.html` | 探针：`probe(['s','y','u','b'], {n:6})` 任意喂键看每一步的候选与提示码；`?scheme=27c` 换方案 |
-| `_test_wasm.html` | 冒烟测试：挂镜像、select、打几组键打印候选 |
-| `_debug_mount.html` | 挂载自检：打印镜像文件数与 wasm 侧日志（`/tmp/rime-mount.log`） |
+原来的探针页（`_probe.html` / `_test_wasm.html` / `_debug_mount.html`）已删：预览实例就挂在
+`window.__ime` 上，滚到「试打」区等它就绪（`window.__ready === true` 表示 base + 当前方案的
+镜像挂好、引擎能出候选），控制台里能看的东西和探针页一样：
+
+```js
+__ime.current                          // 当前方案：keytao / 27 / 27c
+__ime.useScheme('27c')                 // 等价于点第三个 tab（异步，等它跑完）
+__ime.feed('n')                        // 喂一个键，返回 { commit, st }
+__ime.stateNow()                       // { input, preedit, candidates, page, pageSize, ... }
+__ime.call('rime_wasm_schema_list', 'string', [], [])   // 镜像里有哪些方案
+__ime.M.FS.readdir('/user')            // 挂进内存文件系统的文件
+__ime.M.FS.readFile('/tmp/rime-mount.log', { encoding: 'utf8' })   // wasm 侧挂载日志
+```

@@ -308,14 +308,22 @@ bash tools/wasm-build/build-librime.sh
 cd <网站仓库根> && python3 -m http.server 3444        # 纯静态，没有后端
 ```
 
-打开 <http://127.0.0.1:3444/_probe.html>（`?scheme=27c` / `27` / `keytao` 换方案）：
+打开 <http://127.0.0.1:3444/>（不带 `?v=` 用 `index.html` 里的 `BUILD`，`?v=N` 覆盖它穿透
+缓存），滚到「试打」区：
 
-* 页面 log 里 `方案 xxx_flow：select = 1`，`window.__ready === true`；
-* 控制台 `probe(['s','y','u','b'], {n:6})` 每一步都要有候选（`_probe.html` 注释里有用法）。
+* 状态显示「就绪」/ 控制台 `window.__ready === true`（base + 当前方案的 img 都挂上了）；
+* 三个 tab 都点一遍：键位图、候选、上屏都正常，点「体验」随便打两个键要出候选；
+* 要逐键看引擎状态就开控制台（预览实例挂在 `window.__ime` 上）：
 
-正式页 <http://127.0.0.1:3444/>（`?v=N` 穿透缓存）三个 tab 都点一遍：键位图、候选、
-上屏都正常就说明 img 是好的。**改了 data/*.js 记得把 `index.html` 里的 `BUILD` +1**，
-不然老访客继续吃缓存。
+  ```js
+  __ime.current       // 当前方案 keytao / 27 / 27c
+  __ime.feed('n')     // 喂一个键：{ commit, st }
+  __ime.stateNow()    // { input, preedit, candidates, page, ... }
+  __ime.call('rime_wasm_schema_list', 'string', [], [])
+  __ime.M.FS.readdir('/user')   // 挂进内存文件系统的文件
+  ```
+
+**改了 data/*.js 记得把 `index.html` 里的 `BUILD` +1**，不然老访客继续吃缓存。
 
 ---
 
@@ -348,5 +356,5 @@ cd <网站仓库根> && python3 -m http.server 3444        # 纯静态，没有�
 
 * `web/README.md` —— 网页侧怎么用这些 img（加载、IndexedDB 存用户数据、演示剧本）。
 * `tools/README.md` —— 仓库外那堆研究/台架工具（探针、录音、同步实验）。
-* `web/_probe.html` / `_test_wasm.html` / `_debug_mount.html` —— 三个排查页。
+* `web/index.html` —— 站点主页；镜像/引擎的排查用控制台 `window.__ime`（见 `web/README.md`）。
 * `lzma/README.md` —— vendor 进来的 LZMA SDK（public domain）出处。

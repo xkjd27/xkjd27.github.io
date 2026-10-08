@@ -783,7 +783,7 @@ class ImePreview {
     else if (k === '-' || k === '=') key = composing ? k : null;
     else if (/^[1-9]$/.test(k)) key = composing ? k : null;
     else if (k === 'Backspace') key = composing ? 'BackSpace' : null;
-    /* 翻页：[ ] 由引擎处理（flow_engine/bindings/prev_page / next_page），真翻页键也一并接管 */
+    /* 翻页：方案 key_binder 里绑的是 [ ]（→ Page_Up / Page_Down），真翻页键也一并接管 */
     else if (k === '[' || k === ']') key = composing ? k : null;
     else if (k === 'PageUp' || k === 'PageDown') key = composing ? k : null;
     else if (k.length === 1 && !e.shiftKey && (soundKeys.includes(k) || shapeKeys.includes(k))) key = k;

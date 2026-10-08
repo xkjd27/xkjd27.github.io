@@ -72,6 +72,15 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
+    "pauseBefore": [
+     5,
+     10,
+     15,
+     19,
+     24,
+     28,
+     32
+    ],
     "title": "① 整句输入"
    },
    {
@@ -96,6 +105,9 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
+    "pauseBefore": [
+     6
+    ],
     "title": "③ 调频：似水 / 流年"
    },
    {
@@ -120,6 +132,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
+    "pauseBefore": [],
     "promote": true,
     "title": "⑤ 造词：泥菩萨过江自身难保"
    },
@@ -159,6 +172,14 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
+    "pauseBefore": [
+     4,
+     8,
+     13,
+     17,
+     22,
+     26
+    ],
     "title": "⑦ 重新输入修改后的整句"
    },
    {
@@ -274,6 +295,15 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
+    "pauseBefore": [
+     5,
+     10,
+     15,
+     19,
+     24,
+     29,
+     33
+    ],
     "title": "① 整句输入"
    },
    {
@@ -298,6 +328,9 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
+    "pauseBefore": [
+     6
+    ],
     "title": "③ 调频：似水 / 流年"
    },
    {
@@ -323,6 +356,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
+    "pauseBefore": [],
     "promote": true,
     "title": "⑤ 造词：泥菩萨过江自身难保"
    },
@@ -362,6 +396,14 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
+    "pauseBefore": [
+     4,
+     8,
+     13,
+     17,
+     22,
+     26
+    ],
     "title": "⑦ 重新输入修改后的整句"
    },
    {
@@ -482,6 +524,15 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
+    "pauseBefore": [
+     5,
+     10,
+     15,
+     19,
+     24,
+     33,
+     37
+    ],
     "title": "① 整句输入"
    },
    {
@@ -506,6 +557,9 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
+    "pauseBefore": [
+     6
+    ],
     "title": "③ 调频：似水 / 流年"
    },
    {
@@ -536,6 +590,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
+    "pauseBefore": [],
     "promote": true,
     "title": "⑤ 造词：泥菩萨过江自身难保"
    },
@@ -575,6 +630,14 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
+    "pauseBefore": [
+     4,
+     8,
+     13,
+     17,
+     22,
+     26
+    ],
     "title": "⑦ 重新输入修改后的整句"
    },
    {

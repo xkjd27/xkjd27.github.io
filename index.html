@@ -175,6 +175,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .cd .txt{overflow:hidden;text-overflow:ellipsis;max-width:320px}
 .cd .marks{margin-left:auto;padding-left:24px;display:flex;align-items:center;gap:8px}
 .cd .hint{font-size:13px;color:#c9d2de;font-family:var(--mono)}
+.cd.more{background:transparent;border:1px dashed var(--line2);color:var(--dim2);
+  height:30px;font-size:15px;letter-spacing:.12em;cursor:default}
+.cd.more .txt{max-width:none}
 /* 记号画成图形，不靠 emoji 字体（高度可控，各行高度一致） */
 .mk{display:inline-block;flex:0 0 auto}
 .mk-block{position:relative;width:15px;height:15px;border-radius:50%;background:#e2493f}
@@ -267,8 +270,46 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .chip.gold{border-color:var(--gold-dim);color:var(--gold);background:#1b1610}
 .arrow{color:var(--dim2);font-size:15px}
 .ladder{display:flex;align-items:center;gap:8px;width:100%}
-.ladder .rung{height:8px;border-radius:4px;background:#252b34;flex:1}
-.ladder .rung.on{background:linear-gradient(90deg,var(--gold),#f0c070)}
+.ladder .rung{position:relative;height:8px;border-radius:4px;background:#252b34;flex:1}
+/* 亮的那几根：底是灰轨，上面叠一层金色。动画只动这层的透明度，
+   所以「灭」是灭成灰轨、「亮」是亮回金色，长度和位置都不动。 */
+.ladder .rung.on{background:#252b34}
+.ladder .rung.on::after{content:'';position:absolute;inset:0;border-radius:4px;
+  background:linear-gradient(90deg,var(--gold),#f0c070)}
+
+/* 排码卡片的小演出（卡片滚进视口才开始）：
+   0.0～0.9s 「-」闪三下 → 1.1s 最右一根灭 → 1.5s 再灭一根 → 停一会
+   2.7～3.4s 「=」闪三下 → 3.8s 亮回一根 → 4.2s 再亮一根 → 停到 7s 重来 */
+.card.in .ladder .rung.on:nth-child(3)::after{animation:rungOut 7s infinite}
+.card.in .ladder .rung.on:nth-child(2)::after{animation:rungOut2 7s infinite}
+.card.in .viz .chip.gold{animation:keyFlash 7s infinite}
+.card.in .viz .chip.eq{animation:keyFlash2 7s infinite}
+@keyframes rungOut{                    /* 第 3 根：1.1s 灭，3.8s 亮 */
+  0%,14%{opacity:1} 16%,54%{opacity:0} 56%,86%{opacity:1} 88%,100%{opacity:1}
+}
+@keyframes rungOut2{                   /* 第 2 根：1.5s 灭，4.2s 亮（比上面晚一点） */
+  0%,19%{opacity:1} 21%,59%{opacity:0} 61%,100%{opacity:1}
+}
+@keyframes keyFlash{                   /* 「-」连闪三下 */
+  0%{transform:none;box-shadow:none}
+  3%{transform:scale(1.15);box-shadow:0 0 0 3px rgba(233,163,60,.18),0 0 16px rgba(233,163,60,.30)}
+  6%{transform:none;box-shadow:none}
+  8%{transform:scale(1.15);box-shadow:0 0 0 3px rgba(233,163,60,.18),0 0 16px rgba(233,163,60,.30)}
+  11%{transform:none;box-shadow:none}
+  13%{transform:scale(1.15);box-shadow:0 0 0 3px rgba(233,163,60,.18),0 0 16px rgba(233,163,60,.30)}
+  16%{transform:none;box-shadow:none}
+  100%{transform:none;box-shadow:none}
+}
+@keyframes keyFlash2{                  /* 「=」连闪三下（2.7s 起） */
+  0%,38%{transform:none;box-shadow:none}
+  41%{transform:scale(1.15);box-shadow:0 0 0 3px rgba(233,163,60,.18),0 0 16px rgba(233,163,60,.30)}
+  44%{transform:none;box-shadow:none}
+  46%{transform:scale(1.15);box-shadow:0 0 0 3px rgba(233,163,60,.18),0 0 16px rgba(233,163,60,.30)}
+  49%{transform:none;box-shadow:none}
+  51%{transform:scale(1.15);box-shadow:0 0 0 3px rgba(233,163,60,.18),0 0 16px rgba(233,163,60,.30)}
+  54%{transform:none;box-shadow:none}
+  100%{transform:none;box-shadow:none}
+}
 .stage{position:relative;height:104px;width:206px;border-radius:12px;background:#101319;
   border:1px solid var(--line);overflow:hidden}
 .stage .w{position:absolute;font:600 14px/1 var(--mono);padding:7px 10px;border-radius:8px;
@@ -424,7 +465,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
             <span class="rung on"></span><span class="rung on"></span>
             <span class="rung on"></span><span class="rung"></span><span class="rung"></span>
           </div>
-          <span class="chip gold">-</span><span class="chip">=</span>
+          <span class="chip gold">-</span><span class="chip eq">=</span>
         </div>
       </div>
 
@@ -459,8 +500,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '7';
+  const BUILD = '10';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
+  window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
                  'data/demos.js', 'ime.js'];
   return new Promise((res, rej) => {

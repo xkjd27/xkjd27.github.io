@@ -31,10 +31,13 @@ const PACE = {
   top: 620, preMinus: 1000,
 };
 
-const KEYCODE = { space: 0x20, Tab: 0xff09, Enter: 0xff0d, Esc: 0xff1b, BackSpace: 0xff08 };
+const KEYCODE = { space: 0x20, Tab: 0xff09, Enter: 0xff0d, Esc: 0xff1b, BackSpace: 0xff08,
+                  PageUp: 0xff55, PageDown: 0xff56 };
 const USER_DATA_RE = /\.userdb$|\.(order|userdb)\.txt$/;
 /* 右下角浮层只报排码键（空格上屏不报，音码笔码靠键位图高亮） */
 const HUD_KEYS = ['-', '='];
+/* 一页几个候选：跟方案里 menu/page_size 一致（引擎一页就给这么多，翻页靠 [ ]） */
+const PAGE_SIZE = 5;
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
 class ImePreview {
@@ -359,9 +362,13 @@ class ImePreview {
   }
 
   renderCands(st) {
-    const list = ((st && st.candidates) || []).slice(0, 6);
+    const list = ((st && st.candidates) || []).slice(0, PAGE_SIZE);
     const box = this.el.cands;
     if (!list.length) { box.classList.remove('on'); return; }
+    /* 还有下一页就挂个提示：不然右边空着，没人知道 [ ] 能翻 */
+    const more = (st && st.lastPage === false)
+      ? '<div class="cd more" title="还有更多候选：[ / ] 翻页"><span class="txt">⋯</span></div>'
+      : '';
     box.innerHTML = list.map((c, i) => {
       /* 引擎给的 comment 里可能带两个记号：「⛔️」不可顶功、「🔹」次简。
          记号画成 CSS 图形（emoji 在不同系统里高度差太多，会把整行撑变形），
@@ -382,7 +389,7 @@ class ImePreview {
       return '<div class="cd' + (isSec ? ' sec' : '') + '">' +
         '<span class="num">' + (i + 1) + '</span><span class="txt">' + c.text + '</span>' +
         (marks || hint ? '<span class="marks">' + hint + marks + '</span>' : '') + '</div>';
-    }).join('');
+    }).join('') + more;
     box.classList.add('on');
     this.placeCands();
   }
@@ -592,8 +599,6 @@ class ImePreview {
   /* -------------------------------------------------------------- 演示 */
   t(name) { return Math.max(25, Math.round((PACE[name] || PACE.normal) * this.speed)); }
 
-  /** 空格 / 回车是「明着上屏」，不算顶功 */
-  isCommitKey(k) { return k === ' ' || k === 'space' || k === 'Enter'; }
   sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
   /** 预览框滚出视口：停掉演示并把界面复位（回来时从头再演一遍） */
@@ -649,9 +654,18 @@ class ImePreview {
         await this.sleep(this.t('title'));
         if (my !== this.token) return;
         if (step.kind === 'erase') { await this.eraseAll(my); continue; }
+        const pauseBefore = step.pauseBefore || [];
         let minusSeen = false;               /* 这一组码里按过 - 没有 */
-        for (const key of step.keys) {
+        for (let ki = 0; ki < step.keys.length; ki++) {
           if (my !== this.token) return;
+          const key = step.keys[ki];
+          /* 顶功：按这一键时上一个词会被顶上去 —— 先停一下再按，
+             停顿就落在「要顶了」的那一瞬，而不是顶完才停 */
+          if (pauseBefore.indexOf(ki) >= 0) {
+            this.showKey(key);
+            await this.sleep(this.t('top'));
+            if (my !== this.token) return;
+          }
           if (key === '-') {
             /* 调频：一组码里第一次按 - 之前停一下，看清「现在要排码了」 */
             if (!minusSeen) {
@@ -668,9 +682,7 @@ class ImePreview {
           this.lastCands = before.candidates || [];
           this.applyState(st, key);
           this.lastCands = st.candidates || [];
-          /* 顶功：这一键把上一个词顶上屏、同时开始组下一个词 —— 停一下让人看清 */
-          const top = commit && st.preedit && !this.isCommitKey(key);
-          await this.sleep(this.t(step.pace) + (commit ? this.t('hit') : 0) + (top ? this.t('top') : 0));
+          await this.sleep(this.t(step.pace) + (commit ? this.t('hit') : 0));
         }
         if (step.promote) await this.promoteToTop(my);
         if (step.commit) {
@@ -775,6 +787,9 @@ class ImePreview {
     else if (k === '-' || k === '=') key = composing ? k : null;
     else if (/^[1-9]$/.test(k)) key = composing ? k : null;
     else if (k === 'Backspace') key = composing ? 'BackSpace' : null;
+    /* 翻页：方案 key_binder 里绑的是 [ ]（→ Page_Up / Page_Down），真翻页键也一并接管 */
+    else if (k === '[' || k === ']') key = composing ? k : null;
+    else if (k === 'PageUp' || k === 'PageDown') key = composing ? k : null;
     else if (k.length === 1 && !e.shiftKey && (soundKeys.includes(k) || shapeKeys.includes(k))) key = k;
     /* 中文标点交给引擎（Rime 的 punct 表会把 , 变成 ，），引擎不理就直接打原字符 */
     else if (/^[,.;:!?]$/.test(k) && !e.shiftKey) key = k;

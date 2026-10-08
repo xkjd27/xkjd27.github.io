@@ -14,8 +14,10 @@
  */
 const RIME_IMAGE = 'data/base.img';
 
-/* 资产缓存穿透：页面 URL 上的 ?v=... 会给 rime.js / rime.wasm / 镜像都带上 */
-const ASSET_V = new URLSearchParams(location.search).get('v') || '';
+/* 资产缓存穿透：页面 URL 上的 ?v=... 会给 rime.js / rime.wasm / 镜像都带上；
+   没写 ?v= 时用页面脚本的构建号（index.html 里 window.FLOW_ASSET_V 给的），
+   免得老访客一直吃缓存里那份旧 wasm。 */
+const ASSET_V = new URLSearchParams(location.search).get('v') || window.FLOW_ASSET_V || '';
 const asset = (u) => ASSET_V ? u + (u.includes('?') ? '&' : '?') + 'v=' + ASSET_V : u;
 const loadScript = (src) => new Promise((res, rej) => {
   const s = document.createElement('script');

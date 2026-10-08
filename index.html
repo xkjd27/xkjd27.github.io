@@ -490,7 +490,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
       <a href="https://github.com/xkjd27/rime_jd27c_flow" target="_blank" rel="noreferrer">rime_jd27c_flow</a>
       <a href="https://github.com/xkjd27/flow_engine" target="_blank" rel="noreferrer">flow_engine</a>
     </div>
-    <p>作者：TsFreddie | 鸣谢：吅吅大山</p>
+    <p>作者：TsFreddie | 鸣谢：吅吅大山 |
+      <a href="https://github.com/xkjd27/flow_engine/issues" target="_blank"
+         rel="noreferrer" title="到 GitHub Issues 反馈 bug 或建议">报告问题</a></p>
   </footer>
 </main>
 
@@ -500,7 +502,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '10';
+  const BUILD = '11';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',

@@ -11,7 +11,7 @@ window.FLOW_SCHEMES = {
     shapeKeys: 'auiov',
     img: 'data/keytao.img',
     repo: 'https://github.com/xkjd27/rime_keytao_flow',
-    note: '基于键道6的函流输入法',
+    note: '基于键道6的函流输入方案',
   },
   '27': {
     name: '贰柒・函流',
@@ -21,7 +21,7 @@ window.FLOW_SCHEMES = {
     shapeKeys: 'auiov',
     img: 'data/27.img',
     repo: 'https://github.com/xkjd27/rime_jd27_flow',
-    note: '去除飞键的类键道函流输入法',
+    note: '去除飞键的类键道函流输入方案',
   },
   '27c': {
     name: '贰柒C・函流',
@@ -31,7 +31,7 @@ window.FLOW_SCHEMES = {
     shapeKeys: 'aeiov',
     img: 'data/27c.img',
     repo: 'https://github.com/xkjd27/rime_jd27c_flow',
-    note: '专为 Colemak 布局设计的函流输入法',
+    note: '专为 Colemak 布局设计的函流输入方案',
   },
 };
 

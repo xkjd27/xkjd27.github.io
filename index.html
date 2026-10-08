@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>函流输入法 · 可实时排码造词的双形顶功输入方案</title>
-<meta name="description" content="函流输入法：可实时排码造词的双形顶功输入方案。提供键道6，键道27键等不同版本">
+<title>函流输入方案 · 可实时排码造词的双形顶功输入方案</title>
+<meta name="description" content="函流输入方案：可实时排码造词的双形顶功输入方案。提供键道6，键道27键等不同版本">
 <style>
 /* ---------------------------------------------------------------------------
    圆角规则（全页统一）：卡片 / 键帽 / 窗口 14px，标签与按键 8px，胶囊按钮全圆。
@@ -15,7 +15,7 @@
   --bg:#0c0e12; --bg2:#14171d; --bg3:#191d24; --line:#242932; --line2:#2f3540;
   --fg:#e9ebee; --dim:#98a1ac; --dim2:#6a7481;
   --gold:#e9a33c; --gold-dim:#8a6321;
-  --sheng:#ef6b78; --yun:#63a0ff; --shape:#5bc98f; --shape2:#8fd8b0;
+  --sheng:#ef6b78; --yun:#63a0ff; --shape:#5bc98f; --shape2:#8fd8b0; --stroke:#d15eea;
   --ok:#5bc98f; --warn:#ef6b78;
   --sans:"PingFang SC","Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
@@ -345,7 +345,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 
 <header class="nav">
   <div class="wrap in">
-    <a class="brand" href="#top"><span class="mark">函</span>函流输入法</a>
+    <a class="brand" href="#top"><span class="mark">函</span>函流输入方案</a>
     <nav class="links">
       <a href="#layout">键位</a>
       <a href="#preview">试打</a>
@@ -432,7 +432,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
   <section class="sec" id="concepts">
     <div class="sec-head">
       <h2>了解详情</h2>
-      <span class="note">函流输入法特性</span>
+      <span class="note">函流输入方案特性</span>
       <a class="btn tiny repolink" id="btnRepo" href="https://github.com/xkjd27/rime_keytao_flow"
          target="_blank" rel="noreferrer" title="跟着上面的 tab 走">前往 rime_keytao_flow ↗</a>
     </div>
@@ -580,7 +580,7 @@ window.__loaded.then(function () {
           '<div class="name">' + ch.toUpperCase() + '</div>' +
           '<div class="top">' +
             (d.sheng.length ? '<span class="sheng">' + d.sheng.join(' ') + '</span>' : '') +
-            (d.stroke.length ? '<span class="stroke">' + d.stroke.join(' ') + '</span>' : '') +
+            (d.stroke.length ? '<span class="stroke">' + d.stroke.join(' ').replace('乛', '𠃍') + '</span>' : '') +
             (d.stroke.length ? '<span class="iden">' + mine.slice(0,1).slice(0,1)[0][0] + '</span>' : '') +
           '</div>' +
           '<div class="bot">' +

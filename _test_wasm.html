@@ -6,23 +6,48 @@ pre{background:#1b1b1b;padding:10px;border-radius:8px;white-space:pre-wrap}</sty
 <h3>wasm 冒烟测试</h3>
 <p>挂 base + 一个方案，select 之后打几组键看候选；换方案 <code>?scheme=27c</code>。</p>
 <pre id="log">loading…</pre>
-<script src="rime-data.js"></script>
 <script>
-const SCHEMES = { keytao: ['keytao.img', 'keytao_flow'], '27': ['27.img', 'xkjd27_flow'], '27c': ['27c.img', 'xkjd27c_flow'] };
-const which = new URLSearchParams(location.search).get('scheme') || 'keytao';
-const log = (s) => { document.querySelector('#log').textContent += '\n' + s; };
-loadScript(asset('rime.js')).then(() => createRime({ locateFile: (f) => asset(f) })).then(async (M) => {
-  const call = (n, r, a, v) => M.ccall(n, r, a, v);
-  const [img, schema] = SCHEMES[which] || SCHEMES.keytao;
-  for (const i of ['data/base.img', 'data/' + img]) await loadRimeData(M, call, { asset, image: i });
-  call('rime_wasm_init', 'number', ['string', 'string'], ['/shared', '/user']);
-  log('select ' + schema + ' -> ' + call('rime_wasm_select', 'number', ['string'], [schema]));
-  for (const keys of ['nps', 'skeb', 'gm', 'sync']) {
-    for (const k of keys) call('rime_wasm_key', 'number', ['number', 'number'], [k.charCodeAt(0), 0]);
-    const st = JSON.parse(call('rime_wasm_state', 'string', [], []));
-    log(keys + ' -> input=' + JSON.stringify(st.input) + ' 候选：' +
-        (st.candidates || []).slice(0, 5).map((c) => c.text + (c.comment ? '·' + c.comment : '')).join(' '));
+/* 测试页跟主页走同一份版本来源：URL 上的 ?v=... 优先，没有就现读 index.html 里的
+   BUILD（这里不写死构建号）。rime-data.js 自己也要带 ?v=，所以先取版本再动态加载它；
+   之后 rime.js / rime.wasm / data/*.img 都由它带上同一个版本。 */
+window.__loaded = (async () => {
+  let v = new URLSearchParams(location.search).get('v') || '';
+  if (!v) {
+    try {
+      const m = (await (await fetch('index.html', { cache: 'no-store' })).text())
+        .match(/const BUILD = '([^']+)'/);
+      v = m ? m[1] : '';
+    } catch (e) { /* file:// / 离线：没有默认版本 */ }
   }
-}).catch((e) => log('失败：' + (e && e.message || e)));
+  window.FLOW_ASSET_V = v;
+  if (!v) console.warn('[asset] 拿不到构建号，本次资源不带 ?v=；可在 URL 上加 ?v=N');
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'rime-data.js' + (v ? '?v=' + v : '');
+    s.onload = res;
+    s.onerror = () => rej(new Error('加载失败 rime-data.js'));
+    document.head.appendChild(s);
+  });
+})();
+</script>
+<script>
+window.__loaded.then(function () {
+  const SCHEMES = { keytao: ['keytao.img', 'keytao_flow'], '27': ['27.img', 'xkjd27_flow'], '27c': ['27c.img', 'xkjd27c_flow'] };
+  const which = new URLSearchParams(location.search).get('scheme') || 'keytao';
+  const log = (s) => { document.querySelector('#log').textContent += '\n' + s; };
+  loadScript(asset('rime.js')).then(() => createRime({ locateFile: (f) => asset(f) })).then(async (M) => {
+    const call = (n, r, a, v) => M.ccall(n, r, a, v);
+    const [img, schema] = SCHEMES[which] || SCHEMES.keytao;
+    for (const i of ['data/base.img', 'data/' + img]) await loadRimeData(M, call, { asset, image: i });
+    call('rime_wasm_init', 'number', ['string', 'string'], ['/shared', '/user']);
+    log('select ' + schema + ' -> ' + call('rime_wasm_select', 'number', ['string'], [schema]));
+    for (const keys of ['nps', 'skeb', 'gm', 'sync']) {
+      for (const k of keys) call('rime_wasm_key', 'number', ['number', 'number'], [k.charCodeAt(0), 0]);
+      const st = JSON.parse(call('rime_wasm_state', 'string', [], []));
+      log(keys + ' -> input=' + JSON.stringify(st.input) + ' 候选：' +
+          (st.candidates || []).slice(0, 5).map((c) => c.text + (c.comment ? '·' + c.comment : '')).join(' '));
+    }
+  }).catch((e) => log('失败：' + (e && e.message || e)));
+}).catch((e) => log('启动失败：' + (e && e.message || e)));
 </script>
 </body></html>

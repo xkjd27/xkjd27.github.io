@@ -2,6 +2,7 @@
  *
  *   const info = await loadRimeData(M, call, { asset, image:'data/27c.img', onProgress });
  *   // info = { mode:'image', image, files, bytes, ms }
+ *   // asset 可以不传：默认就用下面那个带 ?v= 的 asset()
  *
  * 镜像是 tools/wasm-build/pack-image.py 打的（`export-data.sh` 负责拆）：
  *   data/base.img      共享数据 + lua 引擎 + 配置（几十 KB，开机先挂它）
@@ -14,11 +15,22 @@
  */
 const RIME_IMAGE = 'data/base.img';
 
-/* 资产缓存穿透：页面 URL 上的 ?v=... 会给 rime.js / rime.wasm / 镜像都带上；
-   没写 ?v= 时用页面脚本的构建号（index.html 里 window.FLOW_ASSET_V 给的），
-   免得老访客一直吃缓存里那份旧 wasm。 */
-const ASSET_V = new URLSearchParams(location.search).get('v') || window.FLOW_ASSET_V || '';
-const asset = (u) => ASSET_V ? u + (u.includes('?') ? '&' : '?') + 'v=' + ASSET_V : u;
+/* 资产缓存穿透：rime.js / rime.wasm / data/*.img 都从这里拼 URL，版本只有一个来源 ——
+   页面 URL 上的 ?v=... 优先，其次是 window.FLOW_ASSET_V（index.html 的加载器先赋值
+   再加载本脚本，默认值就是它的 BUILD；_*.html 测试页也走同一套），都没有时退到
+   本脚本自己 script 标签上的 ?v=。取值放在函数里（拼 URL 时现取），所以脚本加载
+   顺序、FLOW_ASSET_V 什么时候赋值都不会漏。 */
+const SELF_ASSET_V = (() => {
+  try {
+    const s = document.currentScript;
+    return s && s.src ? (new URL(s.src).searchParams.get('v') || '') : '';
+  } catch (e) { return ''; }
+})();
+const assetVersion = () => new URLSearchParams(location.search).get('v') || window.FLOW_ASSET_V || SELF_ASSET_V || '';
+const asset = (u) => {
+  const v = assetVersion();
+  return v ? u + (u.includes('?') ? '&' : '?') + 'v=' + v : u;
+};
 const loadScript = (src) => new Promise((res, rej) => {
   const s = document.createElement('script');
   s.src = src;
@@ -29,12 +41,13 @@ const loadScript = (src) => new Promise((res, rej) => {
 
 async function loadRimeData(M, call, opts) {
   opts = opts || {};
-  const asset = opts.asset || (u => u);
+  /* 默认就是带 ?v= 的 asset()：调用方忘了传 opts.asset 也不会漏版本号 */
+  const assetUrl = opts.asset || asset;
   const onProgress = opts.onProgress || (() => {});
   const image = opts.image || RIME_IMAGE;
   const t0 = performance.now();
 
-  const r = await fetch(asset(image));
+  const r = await fetch(assetUrl(image));
   if (!r.ok) throw new Error(`拿不到数据镜像 ${image}（HTTP ${r.status}）`);
   const mb = (n) => (n / 1048576).toFixed(2) + ' MB';
 

@@ -9,57 +9,82 @@ code{color:#e9a33c}</style>
 <code>resetUser()</code> 清当前方案的用户数据、<code>fsList('/user')</code> 看内存文件系统。
 换方案：<code>?scheme=27c</code>（可 <code>keytao</code> / <code>27</code> / <code>27c</code>，默认 keytao）。</p>
 <pre id="log">loading…</pre>
-<script src="rime-data.js"></script>
 <script>
-/* 和 index.html 同一套加载流程（base 镜像 + 该方案的镜像），只是没有演示循环 */
-const SCHEMES = { keytao: 'keytao.img', '27': '27.img', '27c': '27c.img' };
-const SCHEMA_ID = { keytao: 'keytao_flow', '27': 'xkjd27_flow', '27c': 'xkjd27c_flow' };
-const which = new URLSearchParams(location.search).get('scheme') || 'keytao';
-const log = (s) => { document.querySelector('#log').textContent += '\n' + s; };
-const KEYCODE = { space: 0x20, Tab: 0xff09, Enter: 0xff0d, Esc: 0xff1b, BackSpace: 0xff08 };
-let M, call, schema = SCHEMA_ID[which] || SCHEMA_ID.keytao;
-window.__ready = false;
-
-loadScript(asset('rime.js')).then(() => createRime({ locateFile: (f) => asset(f) })).then(async (mod) => {
-  M = mod;
-  call = (n, r, a, v) => M.ccall(n, r, a, v);
-  for (const img of ['data/base.img', 'data/' + (SCHEMES[which] || SCHEMES.keytao)]) {
-    const info = await loadRimeData(M, call, { asset, image: img, onProgress: (p, s) => log('  ' + Math.round(p * 100) + '% ' + s) });
-    log('挂了 ' + img + '（' + info.files + ' 个文件，' + (info.bytes / 1048576).toFixed(2) + ' MB）');
+/* 测试页跟主页走同一份版本来源：URL 上的 ?v=... 优先，没有就现读 index.html 里的
+   BUILD（这里不写死构建号）。rime-data.js 自己也要带 ?v=，所以先取版本再动态加载它；
+   之后 rime.js / rime.wasm / data/*.img 都由它带上同一个版本。 */
+window.__loaded = (async () => {
+  let v = new URLSearchParams(location.search).get('v') || '';
+  if (!v) {
+    try {
+      const m = (await (await fetch('index.html', { cache: 'no-store' })).text())
+        .match(/const BUILD = '([^']+)'/);
+      v = m ? m[1] : '';
+    } catch (e) { /* file:// / 离线：没有默认版本 */ }
   }
-  call('rime_wasm_init', 'number', ['string', 'string'], ['/shared', '/user']);
-  const ok = call('rime_wasm_select', 'number', ['string'], [schema]);
-  log('方案 ' + schema + '：select = ' + ok);
-  log('可用方案：' + call('rime_wasm_schema_list', 'string', [], []));
-  window.__ready = true;
+  window.FLOW_ASSET_V = v;
+  if (!v) console.warn('[asset] 拿不到构建号，本次资源不带 ?v=；可在 URL 上加 ?v=N');
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'rime-data.js' + (v ? '?v=' + v : '');
+    s.onload = res;
+    s.onerror = () => rej(new Error('加载失败 rime-data.js'));
+    document.head.appendChild(s);
+  });
+})();
+</script>
+<script>
+window.__loaded.then(function () {
+  /* 和 index.html 同一套加载流程（base 镜像 + 该方案的镜像），只是没有演示循环 */
+  const SCHEMES = { keytao: 'keytao.img', '27': '27.img', '27c': '27c.img' };
+  const SCHEMA_ID = { keytao: 'keytao_flow', '27': 'xkjd27_flow', '27c': 'xkjd27c_flow' };
+  const which = new URLSearchParams(location.search).get('scheme') || 'keytao';
+  const log = (s) => { document.querySelector('#log').textContent += '\n' + s; };
+  const KEYCODE = { space: 0x20, Tab: 0xff09, Enter: 0xff0d, Esc: 0xff1b, BackSpace: 0xff08 };
+  let M, call, schema = SCHEMA_ID[which] || SCHEMA_ID.keytao;
+  window.__ready = false;
 
-  function state() { return JSON.parse(call('rime_wasm_state', 'string', [], [])); }
-  function feed(k) {
-    const kc = KEYCODE[k] !== undefined ? KEYCODE[k] : k.charCodeAt(0);
-    call('rime_wasm_key', 'number', ['number', 'number'], [kc, 0]);
-    const commit = call('rime_wasm_commit', 'string', [], []);
-    return { commit, st: state() };
-  }
-  window.probe = (keys, opts) => {
-    if (opts && opts.reset) window.resetUser();
-    let out = '输入串 / 候选：';
-    for (const k of keys) {
-      const { commit, st } = feed(k);
-      out += '\n  ' + k + '  input=' + JSON.stringify(st.input) + ' preedit=' + JSON.stringify(st.preedit) +
-             (commit ? ' 上屏=' + commit : '');
-      for (const [i, c] of (st.candidates || []).slice(0, (opts && opts.n) || 6).entries()) {
-        out += '\n      ' + (i + 1) + '. ' + c.text + (c.comment ? '  ' + c.comment : '');
-      }
+  loadScript(asset('rime.js')).then(() => createRime({ locateFile: (f) => asset(f) })).then(async (mod) => {
+    M = mod;
+    call = (n, r, a, v) => M.ccall(n, r, a, v);
+    for (const img of ['data/base.img', 'data/' + (SCHEMES[which] || SCHEMES.keytao)]) {
+      const info = await loadRimeData(M, call, { asset, image: img, onProgress: (p, s) => log('  ' + Math.round(p * 100) + '% ' + s) });
+      log('挂了 ' + img + '（' + info.files + ' 个文件，' + (info.bytes / 1048576).toFixed(2) + ' MB）');
     }
-    log(out);
-    return out;
-  };
-  window.lookup = (keys, n) => window.probe(typeof keys === 'string' ? keys.split('') : keys, { n: n || 8 });
-  window.resetUser = () => log('reset_user_of -> ' + call('rime_wasm_reset_user_of', 'number', ['string'], [schema]));
-  window.fsList = (dir) => log('FS ' + dir + ':\n  ' + M.FS.readdir(dir).join('\n  '));
-  window.state = state;
-  window.__M = M;
-  log('\n就绪。试试 probe([\'s\',\'y\',\'u\',\'b\'], {n:6})');
+    call('rime_wasm_init', 'number', ['string', 'string'], ['/shared', '/user']);
+    const ok = call('rime_wasm_select', 'number', ['string'], [schema]);
+    log('方案 ' + schema + '：select = ' + ok);
+    log('可用方案：' + call('rime_wasm_schema_list', 'string', [], []));
+    window.__ready = true;
+
+    function state() { return JSON.parse(call('rime_wasm_state', 'string', [], [])); }
+    function feed(k) {
+      const kc = KEYCODE[k] !== undefined ? KEYCODE[k] : k.charCodeAt(0);
+      call('rime_wasm_key', 'number', ['number', 'number'], [kc, 0]);
+      const commit = call('rime_wasm_commit', 'string', [], []);
+      return { commit, st: state() };
+    }
+    window.probe = (keys, opts) => {
+      if (opts && opts.reset) window.resetUser();
+      let out = '输入串 / 候选：';
+      for (const k of keys) {
+        const { commit, st } = feed(k);
+        out += '\n  ' + k + '  input=' + JSON.stringify(st.input) + ' preedit=' + JSON.stringify(st.preedit) +
+               (commit ? ' 上屏=' + commit : '');
+        for (const [i, c] of (st.candidates || []).slice(0, (opts && opts.n) || 6).entries()) {
+          out += '\n      ' + (i + 1) + '. ' + c.text + (c.comment ? '  ' + c.comment : '');
+        }
+      }
+      log(out);
+      return out;
+    };
+    window.lookup = (keys, n) => window.probe(typeof keys === 'string' ? keys.split('') : keys, { n: n || 8 });
+    window.resetUser = () => log('reset_user_of -> ' + call('rime_wasm_reset_user_of', 'number', ['string'], [schema]));
+    window.fsList = (dir) => log('FS ' + dir + ':\n  ' + M.FS.readdir(dir).join('\n  '));
+    window.state = state;
+    window.__M = M;
+    log('\n就绪。试试 probe([\'s\',\'y\',\'u\',\'b\'], {n:6})');
+  }).catch((e) => log('启动失败：' + (e && e.message || e)));
 }).catch((e) => log('启动失败：' + (e && e.message || e)));
 </script>
 </body></html>

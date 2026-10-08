@@ -502,9 +502,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 /* 页面自己的脚本也吃 URL 上的 ?v=：不然改了 ime.js / data/*.js，浏览器还在用缓存里那份。
    按顺序加载，加载完再跑下面的主脚本。 */
 window.__loaded = (function () {
-  /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
-     这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '14';
+  /* BUILD：页面自己脚本的版本号。改了 ime.js / rime-data.js / data/* 就把它 +1，
+     这样即使用户没带 ?v= 也不会继续吃旧缓存（_*.html 测试页也来读这个值）。 */
+  const BUILD = '15';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
@@ -680,6 +680,7 @@ window.__loaded.then(function () {
   function ensureBoot() {
     if (!bootPromise) {
       bootPromise = ime.boot().then(() => {
+        window.__ready = true;              /* 无头浏览器测试等这个 */
         skeleton(false);
         $('.ime-caplbl').textContent = '就绪';
       }).catch((e) => {

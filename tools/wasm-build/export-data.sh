@@ -99,6 +99,7 @@ cp "$LUA_SRC"/*.lua "$TMP/user/lua/"
 {
   printf 'patch:\n  schema_list:\n'
   for k in $ALL_KEYS; do printf '    - schema: %s\n' "$(scheme_id "$k")"; done
+  printf '  menu/page_size: 6\n'
 } > "$TMP/user/default.custom.yaml"
 
 # 输入文件 mtime 统一钳到固定值：部署副本里的 __build_info.timestamps 和 prism 里的

@@ -178,9 +178,6 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .cd .txt{overflow:hidden;text-overflow:ellipsis;max-width:320px}
 .cd .marks{margin-left:auto;padding-left:24px;display:flex;align-items:center;gap:8px}
 .cd .hint{font-size:13px;color:#c9d2de;font-family:var(--mono)}
-.cd.more{background:transparent;border:1px dashed var(--line2);color:var(--dim2);
-  height:30px;font-size:15px;letter-spacing:.12em;cursor:default}
-.cd.more .txt{max-width:none}
 /* 记号画成图形，不靠 emoji 字体（高度可控，各行高度一致） */
 .mk{display:inline-block;flex:0 0 auto}
 .mk-block{position:relative;width:15px;height:15px;border-radius:50%;background:#e2493f}
@@ -507,7 +504,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '13';
+  const BUILD = '14';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',

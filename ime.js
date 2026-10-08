@@ -37,7 +37,7 @@ const USER_DATA_RE = /\.userdb$|\.(order|userdb)\.txt$/;
 /* 右下角浮层只报排码键（空格上屏不报，音码笔码靠键位图高亮） */
 const HUD_KEYS = ['-', '='];
 /* 一页几个候选：跟方案里 menu/page_size 一致（引擎一页就给这么多，翻页靠 [ ]） */
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
 class ImePreview {
@@ -365,10 +365,6 @@ class ImePreview {
     const list = ((st && st.candidates) || []).slice(0, PAGE_SIZE);
     const box = this.el.cands;
     if (!list.length) { box.classList.remove('on'); return; }
-    /* 还有下一页就挂个提示：不然右边空着，没人知道 [ ] 能翻 */
-    const more = (st && st.lastPage === false)
-      ? '<div class="cd more" title="还有更多候选：[ / ] 翻页"><span class="txt">⋯</span></div>'
-      : '';
     box.innerHTML = list.map((c, i) => {
       /* 引擎给的 comment 里可能带两个记号：「⛔️」不可顶功、「🔹」次简。
          记号画成 CSS 图形（emoji 在不同系统里高度差太多，会把整行撑变形），
@@ -389,7 +385,7 @@ class ImePreview {
       return '<div class="cd' + (isSec ? ' sec' : '') + '">' +
         '<span class="num">' + (i + 1) + '</span><span class="txt">' + c.text + '</span>' +
         (marks || hint ? '<span class="marks">' + hint + marks + '</span>' : '') + '</div>';
-    }).join('') + more;
+    }).join('');
     box.classList.add('on');
     this.placeCands();
   }

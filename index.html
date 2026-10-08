@@ -504,7 +504,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / rime-data.js / data/* 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存（_*.html 测试页也来读这个值）。 */
-  const BUILD = '19';
+  const BUILD = '20';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   window.FLOW_ASSET_V = v;      /* 让 rime-data.js 里那层缓存穿透也吃上版本号 */
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',

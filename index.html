@@ -457,7 +457,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '4';
+  const BUILD = '5';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
                  'data/demos.js', 'ime.js'];
@@ -622,10 +622,17 @@ window.__loaded.then(function () {
     skeleton(false);
   }
 
-  /* 首次进入预览区才开始下载（页面其它部分是纯静态的，早就画好了） */
+  /* 首次进入预览区才开始下载（页面其它部分是纯静态的，早就画好了）；
+     之后一直盯着：滚出视口就暂停演示并复位，滚回来从头再演一遍。 */
   const io = new IntersectionObserver((ents) => {
-    for (const e of ents) if (e.isIntersecting) { io.disconnect(); ensureBoot(); }
-  }, { rootMargin: '200px' });
+    for (const e of ents) {
+      if (e.isIntersecting) {
+        ensureBoot().then(() => { if (ime.ready) ime.setVisible(true); });
+      } else {
+        ime.setVisible(false);
+      }
+    }
+  }, { threshold: 0.18 });
   io.observe($('#ime'));
 
   $('#btnTry').onclick = async () => {

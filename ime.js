@@ -61,6 +61,8 @@ class ImePreview {
     this.lastCands = [];
     this.saveTimer = null;
     this.lock = null;
+    this.playing = false;      /* 演示循环是否在跑（同一时刻只允许一个） */
+    this.visible = true;       /* 预览框是否在视口里 —— 滚走就暂停并复位 */
     this.composing = false;
     this.compAnchor = 0;      /* 组字开始的字符位置（浮层画这儿） */
     this.inserting = false;
@@ -228,7 +230,8 @@ class ImePreview {
     });
     /* 演示循环是「永不返回」的，必须在锁外面启动 —— 不然接下来所有操作都会排死在队列里 */
     if (wasFree) await this.enterFree();
-    else this.play();
+    else if (this.visible) this.play();
+    else this.onPhase('滚到预览框就开始演示');
     return ok;
   }
 
@@ -589,12 +592,39 @@ class ImePreview {
   t(name) { return Math.max(25, Math.round((PACE[name] || PACE.normal) * this.speed)); }
   sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
+  /** 预览框滚出视口：停掉演示并把界面复位（回来时从头再演一遍） */
+  pauseDemo() {
+    this.token++;              /* 作废正在跑的那一轮 */
+    this.playing = false;
+    if (this.M) {
+      this.call('rime_wasm_clear', 'void', [], []);
+      this.call('rime_wasm_select', 'number', ['string'], [this.schemaId]);
+    }
+    this.resetView();
+    this.resetHud('暂停');
+    this.onPhase('演示已暂停（滚回来看会重新开始）');
+  }
+
+  /** 由外部的 IntersectionObserver 调 */
+  setVisible(v) {
+    this.visible = !!v;
+    if (!this.M) return;
+    if (this.visible) {
+      if (this.mode === 'demo' && !this.playing) this.play();
+    } else if (this.playing) {
+      this.pauseDemo();
+    }
+  }
+
   async play() {
+    if (this.playing) return;
+    this.playing = true;
     const script = this.demos[this.current];
     this.mode = 'demo';
     this.setReadOnly(true);
     this.el.tip.style.display = 'none';
-    if (!script) { this.onPhase('这个方案还没有演示脚本'); return; }
+    if (!script) { this.playing = false; this.onPhase('这个方案还没有演示脚本'); return; }
+    try {
     while (this.mode === 'demo') {
       const my = ++this.token;
       this.round++;
@@ -633,6 +663,9 @@ class ImePreview {
         await this.sleep(this.t('gap'));
       }
       await this.sleep(this.t('end'));
+    }
+    } finally {
+      this.playing = false;
     }
   }
 
@@ -689,7 +722,8 @@ class ImePreview {
       }
     });
     if (m === 'free') this.el.ta.focus();
-    else this.play();                 /* 同上：循环在锁外跑 */
+    else if (this.visible) this.play();   /* 同上：循环在锁外跑；不在视口里就等滚到 */
+    else this.onPhase('滚到预览框就开始演示');
     return ok;
   }
 

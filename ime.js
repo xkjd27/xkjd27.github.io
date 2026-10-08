@@ -25,7 +25,7 @@
 'use strict';
 
 const PACE = {
-  normal: 460, slow: 1150, hit: 340, promote: 520, commit: 700,
+  normal: 200, slow: 500, hit: 340, promote: 520, commit: 700,
   title: 660, gap: 840, reset: 900, eraseKey: 120, eraseChar: 110, end: 1200,
 };
 
@@ -226,7 +226,6 @@ class ImePreview {
       }
       this.onProgress(1, ok ? '就绪' : '选方案失败');
       this.resetView();
-      this.el.live.textContent = this.schemaId;
     });
     /* 演示循环是「永不返回」的，必须在锁外面启动 —— 不然接下来所有操作都会排死在队列里 */
     if (wasFree) await this.enterFree();
@@ -715,10 +714,11 @@ class ImePreview {
       if (m === 'free') {
         this.setReadOnly(false);
         ok = await this.enterFree();
+        this.onStatus('体验中 · 体验时请关闭系统输入法');
       } else {
         this.setReadOnly(true);
         ok = await this.selectSchema();
-        this.onStatus('演示中 · 用户数据每轮清空，你自己那份已存好');
+        this.onStatus('演示中 · 点击体验按钮尝试输入');
       }
     });
     if (m === 'free') this.el.ta.focus();
@@ -731,12 +731,9 @@ class ImePreview {
 
   async enterFree() {
     this.onPhase('体验模式 · 随便打');
-    const n = await this.loadUserData();
     const ok = await this.selectSchema();
     if (!ok) this.onStatus('会话没建起来（select 失败），刷新页面试试');
     return ok;
-    this.onStatus(n ? '已载入你的 ' + n + ' 个用户数据文件'
-                    : '这份数据还是空的，打几个字试试（会自动存在浏览器里）');
   }
 
   /* ---------------------------------------------------- 体验模式的键盘 */

@@ -72,7 +72,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
-    "title": "① 整句输入 · 正常速度"
+    "title": "① 整句输入"
    },
    {
     "kind": "erase",
@@ -96,7 +96,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
-    "title": "③ 调频：似水 / 流年（提示键 → - 固定到最短一级）"
+    "title": "③ 调频：似水 / 流年"
    },
    {
     "kind": "erase",
@@ -121,7 +121,7 @@ window.FLOW_DEMOS = {
     "kind": "keys",
     "pace": "slow",
     "promote": true,
-    "title": "⑤ 造词：泥菩萨过江自身难保（- 入库，再按 - 调到最高）"
+    "title": "⑤ 造词：泥菩萨过江自身难保"
    },
    {
     "kind": "erase",
@@ -159,11 +159,11 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
-    "title": "⑦ 再打一遍整句 · 两处都成了一个码"
+    "title": "⑦ 重新输入修改后的整句"
    },
    {
     "kind": "erase",
-    "title": "⑧ 退格删掉整句"
+    "title": "⑧ 演示结束"
    }
   ],
   "whole": [
@@ -274,7 +274,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
-    "title": "① 整句输入 · 正常速度"
+    "title": "① 整句输入"
    },
    {
     "kind": "erase",
@@ -298,7 +298,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
-    "title": "③ 调频：似水 / 流年（提示键 → - 固定到最短一级）"
+    "title": "③ 调频：似水 / 流年"
    },
    {
     "kind": "erase",
@@ -324,7 +324,7 @@ window.FLOW_DEMOS = {
     "kind": "keys",
     "pace": "slow",
     "promote": true,
-    "title": "⑤ 造词：泥菩萨过江自身难保（- 入库，再按 - 调到最高）"
+    "title": "⑤ 造词：泥菩萨过江自身难保"
    },
    {
     "kind": "erase",
@@ -362,11 +362,11 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
-    "title": "⑦ 再打一遍整句 · 两处都成了一个码"
+    "title": "⑦ 重新输入修改后的整句"
    },
    {
     "kind": "erase",
-    "title": "⑧ 退格删掉整句"
+    "title": "⑧ 演示结束"
    }
   ],
   "whole": [
@@ -482,7 +482,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
-    "title": "① 整句输入 · 正常速度"
+    "title": "① 整句输入"
    },
    {
     "kind": "erase",
@@ -506,7 +506,7 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "slow",
-    "title": "③ 调频：似水 / 流年（提示键 → - 固定到最短一级）"
+    "title": "③ 调频：似水 / 流年"
    },
    {
     "kind": "erase",
@@ -537,7 +537,7 @@ window.FLOW_DEMOS = {
     "kind": "keys",
     "pace": "slow",
     "promote": true,
-    "title": "⑤ 造词：泥菩萨过江自身难保（- 入库，再按 - 调到最高）"
+    "title": "⑤ 造词：泥菩萨过江自身难保"
    },
    {
     "kind": "erase",
@@ -575,11 +575,11 @@ window.FLOW_DEMOS = {
     ],
     "kind": "keys",
     "pace": "normal",
-    "title": "⑦ 再打一遍整句 · 两处都成了一个码"
+    "title": "⑦ 重新输入修改后的整句"
    },
    {
     "kind": "erase",
-    "title": "⑧ 退格删掉整句"
+    "title": "⑧ 演示结束"
    }
   ],
   "whole": [

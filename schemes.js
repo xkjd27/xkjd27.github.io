@@ -11,7 +11,7 @@ window.FLOW_SCHEMES = {
     shapeKeys: 'auiov',
     img: 'data/keytao.img',
     repo: 'https://github.com/xkjd27/rime_keytao_flow',
-    note: '原版键道码表 + 冰 / 袖珍词库，声母 zh ch 带飞键（外侧 q / j，内侧 f / w）。',
+    note: '基于键道6的函流输入法',
   },
   '27': {
     name: '贰柒・函流',
@@ -21,17 +21,17 @@ window.FLOW_SCHEMES = {
     shapeKeys: 'auiov',
     img: 'data/27.img',
     repo: 'https://github.com/xkjd27/rime_jd27_flow',
-    note: '27 个键位一个不多一个不少：zh ch sh 各占一键，没有飞键，右手小指不越位。',
+    note: '去除飞键的类键道函流输入法',
   },
   '27c': {
     name: '贰柒C・函流',
     id: 'xkjd27c_flow',
-    blurb: '基于 RIME 键道的 <b>Colemak 排码造词</b>输入法',
+    blurb: '基于 RIME 键道的 <b>Colemak</b> 排码造词输入法',
     keyboard: 'Colemak 布局',
     shapeKeys: 'aeiov',
     img: 'data/27c.img',
     repo: 'https://github.com/xkjd27/rime_jd27c_flow',
-    note: '为 Colemak 排位设计，笔形键落在 a e i o v；词库用冰词库（重量自动排码）。',
+    note: '专为 Colemak 布局设计的函流输入法',
   },
 };
 

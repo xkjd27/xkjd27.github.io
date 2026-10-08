@@ -80,18 +80,18 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .btn.ghost:hover{color:var(--fg);border-color:#3b424f}
 
 /* ------------------------------------------------------------------ 键盘 */
-.kbd{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:6px;
+.kbd{display:flex;flex-direction:column;align-items:center;gap:10px;
   padding:22px 18px;background:linear-gradient(180deg,#12151a,#0e1116);
   border:1px solid var(--line);border-radius:20px}
+.kbd-rows{display:flex;flex-direction:column;align-items:baseline;gap:10px;}
 .kbd-row{display:flex;gap:10px}
-.kbd-row[data-i="1"]{margin-left:calc((100% - 0px) * 0)}
-.key{position:relative;width:104px;height:104px;border-radius:14px;border:1px solid var(--line2);
+.key{position:relative;width:72px;height:72px;border-radius:14px;border:1px solid var(--line2);
   background:linear-gradient(180deg,#1b2029,#151920);padding:9px 10px;
   display:flex;flex-direction:column;transition:border-color .12s,box-shadow .12s,transform .1s}
 .key .name{font:600 13.5px/1 var(--mono);color:#eef1f5;letter-spacing:.02em}
 .key .top{margin-left:auto;text-align:right;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
-.key .sheng{font:640 15px/1.15 var(--mono);color:var(--sheng);letter-spacing:.06em}
-.key .stroke{font:600 15px/1.15 var(--mono);color:var(--shape)}
+.key .sheng{font:640 15px/1.15 var(--mono);color:var(--sheng);position:absolute;top:0.5em}
+.key .stroke{font:600 15px/1.15 var(--mono);color:var(--shape);position:absolute;top:0.7em}
 .key .bot{margin-top:auto}
 .key .yun{font:600 15px/1.3 var(--sans);color:var(--yun)}
 .key .shapes{display:flex;flex-wrap:wrap;gap:2px 8px;justify-content:center}
@@ -101,9 +101,10 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .key.empty{opacity:.42}
 @media (max-width:1060px){
   .kbd{padding:16px 12px}
-  .key{width:84px;height:84px;padding:7px 8px}
+  .key{width:64px;height:64px;padding:7px 8px}
   .key .name{font-size:13px}
   .key .sheng,.key .stroke{font-size:15px}
+  .key .shapes{display:none}
   .key .yun{font-size:14.5px}
   .key .shapes .it{font-size:13px}
   .kbd-row{gap:7px}
@@ -111,7 +112,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 @media (max-width:760px){
   .kbd{overflow-x:auto;align-items:flex-start}
   .kbd-row{flex-wrap:nowrap}
-  .key{width:74px;height:74px}
+  .key{width:64px;height:64px}
   .key .shapes{display:none}
   .key .yun{font-size:13px}
 }
@@ -301,7 +302,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
     <nav class="links">
       <a href="#layout">键位</a>
       <a href="#preview">试打</a>
-      <a href="#concepts">四个概念</a>
+      <a href="#concepts">了解详情</a>
       <a href="https://github.com/xkjd27" target="_blank" rel="noreferrer">GitHub</a>
     </nav>
   </div>
@@ -312,15 +313,14 @@ code,kbd{font-family:var(--mono);font-size:.92em}
   <!-- ------------------------------------------------------------ hero -->
   <section class="hero">
     <h1>函流输入法</h1>
-    <p class="lede">音码打头、形码收尾的筛选式输入：<b>音码先打，不够再加形码</b>；
-      常用的词自己排到最短码，不常用的按提示键补两下就到手。排码、造词都是实时的。</p>
+    <p class="lede">可实时<b>排码造词</b>的顶功输入法</p>
 
     <div class="tabs" id="tabs" role="tablist" aria-label="方案"></div>
     <div class="blurb" id="blurb" role="tabpanel"></div>
 
     <div class="cta">
       <button class="btn primary" id="btnTry">试试打字</button>
-      <a class="btn ghost" href="#concepts">看看四个概念</a>
+      <a class="btn ghost" href="#concepts">了解详情</a>
     </div>
   </section>
 
@@ -330,20 +330,14 @@ code,kbd{font-family:var(--mono);font-size:.92em}
       <h2>键位</h2>
       <span class="note" id="kbdNote">—</span>
     </div>
-    <div class="kbd" id="kbd"></div>
-    <div class="legend">
-      <span class="l1"><i></i>声母（红）</span>
-      <span class="l2"><i></i>韵母（蓝）</span>
-      <span class="l3"><i></i>笔形与字根（绿）</span>
-      <span class="l4"><i></i>排码键 <code>-</code> / <code>=</code>（预览里按下会亮）</span>
-    </div>
+    <div class="kbd"><div class="kbd-rows" id="kbd"></div></div>
   </section>
 
   <!-- ------------------------------------------------------------ 预览 -->
   <section class="sec" id="preview">
     <div class="sec-head">
       <h2>打给你看</h2>
-      <span class="note">下面这台是真 librime（WebAssembly）在浏览器里跑，候选、提示键、顶功、排码、造词都是它现算的。</span>
+      <span class="note">在线演示与体验</span>
     </div>
 
     <div class="ime" id="ime">
@@ -381,33 +375,31 @@ code,kbd{font-family:var(--mono);font-size:.92em}
         <button id="btnFree"><i class="ico-key"></i>体验</button>
       </span>
       <button class="btn tiny" id="btnClear" style="display:none">清空我的数据</button>
-      <span class="ime-status" id="status">—</span>
+      <span class="ime-status" id="status">演示中 · 点击体验按钮尝试输入</span>
     </div>
   </section>
 
-  <!-- ------------------------------------------------------ 四个概念 -->
+  <!-- ------------------------------------------------------ 了解详情 -->
   <section class="sec" id="concepts">
     <div class="sec-head">
-      <h2>四个概念</h2>
-      <span class="note">一台输入法最要紧的四件事，都在上面那台里跑着。</span>
+      <h2>了解详情</h2>
+      <span class="note">函流输入法特性</span>
     </div>
 
     <div class="cards">
       <div class="card reveal">
-        <h3><span class="k">双形</span>音码 + 形码</h3>
-        <p>音码打不全就不打了，接着补形码（笔形或字根）。候选右边的提示键<b>就是还差的那几键</b>，
-          按下去它就到首选——不用在几十个同音字里数数字。</p>
+        <h3><span class="k">双形</span>音码 + 笔码</h3>
+        <p>继承键道的音形输入</p>
         <div class="viz">
-          <span class="chip sheng">s y u b</span><span class="arrow">+</span>
-          <span class="chip shape">i</span><span class="arrow">→</span>
+          <span class="chip sheng">s y u b / si shui</span><span class="arrow">+</span>
+          <span class="chip shape">i / 亻</span><span class="arrow">→</span>
           <span class="chip gold">似水</span>
         </div>
       </div>
 
       <div class="card reveal">
-        <h3><span class="k">顶功</span>不用按空格</h3>
-        <p>上一个词不用空格上屏：<b>下一个词的第一个键会把它顶上去</b>。
-          整句连着敲，键盘声是连贯的；页面上那个「顶」字就是这么来的。</p>
+        <h3><span class="k">顶功</span>不用按空格*</h3>
+        <p>四码与笔码后自动顶上屏</p>
         <div class="viz">
           <div class="stage" id="stageTop">
             <span class="w a">流年</span><span class="w b">往事</span><span class="up">↑ 顶</span>
@@ -416,9 +408,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
       </div>
 
       <div class="card reveal">
-        <h3><span class="k">排码</span>打过的词自己往前站</h3>
-        <p>打对了的候选按 <code>-</code> 上调、<code>=</code> 降档；<b>调过的词会被记住</b>，
-          再打就一路往上排，直到变成一个最短码。</p>
+        <h3><span class="k">排码</span>随意排码，长度随调</h3>
+        <p>候选首选随时可按键实时上调或降档<b>实时保存</b>，
+          随心排码</p>
         <div class="viz">
           <div class="ladder">
             <span class="rung on"></span><span class="rung on"></span>
@@ -429,9 +421,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
       </div>
 
       <div class="card reveal">
-        <h3><span class="k">造词</span>词库里没有也能打</h3>
-        <p>按 <code>`</code> 起造词，两段各按空格选上，再按 <code>-</code> 入库；
-          下次<b>一个码就打出来</b>——歇后语、长术语都这么攒起来。</p>
+        <h3><span class="k">造词</span>一次输入，一劳永逸</h3>
+        <p>按 <code>`</code> 进入造词模式，输入任意词句，按 <code>-</code> 直接入库；
+          培养自己的词库</p>
         <div class="viz">
           <span class="chip">`</span>
           <span class="chip sheng">泥菩萨</span>
@@ -447,10 +439,9 @@ code,kbd{font-family:var(--mono);font-size:.92em}
       <a href="https://github.com/xkjd27/rime_keytao_flow" target="_blank" rel="noreferrer">rime_keytao_flow</a>
       <a href="https://github.com/xkjd27/rime_jd27_flow" target="_blank" rel="noreferrer">rime_jd27_flow</a>
       <a href="https://github.com/xkjd27/rime_jd27c_flow" target="_blank" rel="noreferrer">rime_jd27c_flow</a>
-      <a href="https://github.com/xkjd27/flow_engine" target="_blank" rel="noreferrer">flow_engine（共享 lua 引擎）</a>
+      <a href="https://github.com/xkjd27/flow_engine" target="_blank" rel="noreferrer">flow_engine</a>
     </div>
-    <p>页面上那台输入法是真的：librime 1.13 + lua 插件编成 WebAssembly，方案与预编译词库随镜像下发。
-      数据只在你点开某个 tab 时下载，之后存在浏览器缓存里。</p>
+    <p>作者：TsFreddie | 鸣谢：吅吅大山</p>
   </footer>
 </main>
 
@@ -499,7 +490,7 @@ window.__loaded.then(function () {
     L.rows.forEach((row, i) => {
       const el = document.createElement('div');
       el.className = 'kbd-row';
-      el.style.marginLeft = (i * 18) + 'px';        // 一点错位，像真键盘
+      el.style.paddingLeft = (i * 50) + 'px';        // 一点错位，像真键盘
       for (const ch of row) {
         const d = L.keys[ch] || { sheng: [], yun: [], stroke: [], shape: [] };
         const k = document.createElement('div');
@@ -567,8 +558,7 @@ window.__loaded.then(function () {
     const s = SCHEMES[key];
     $('#blurb').innerHTML =
       '<div class="line">' + s.blurb + '</div>' +
-      '<div class="sub">' + (s.note || '') +
-      (SIZES[key] ? '　·　首次点开要下 ' + SIZES[key] + ' 数据和词库，之后就存在浏览器里' : '') +
+      '<div class="sub">' + (s.note || '')
       '</div>';
     renderKeyboard(key, animate !== false);
     hotKey(null);

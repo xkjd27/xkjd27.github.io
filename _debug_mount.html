@@ -7,9 +7,12 @@ pre{background:#1b1b1b;padding:10px;border-radius:8px;white-space:pre-wrap}</sty
 <p>把 <code>data/base.img</code> 与各方案镜像挂进内存文件系统，打印文件数与 wasm 侧日志
 （<code>/tmp/rime-mount.log</code>）。<code>?scheme=27c</code> 换方案。</p>
 <pre id="log">loading…</pre>
-<!-- 版本号跟主页同一个来源：页面 URL 上的 ?v=...（没有就不带，等于关掉缓存穿透） -->
-<script>window.FLOW_ASSET_V = new URLSearchParams(location.search).get('v') || '';</script>
-<script src="rime-data.js"></script>
+<!-- 版本号跟主页同一个来源：页面 URL 上的 ?v=...（没有就不带，等于关掉缓存穿透）。
+     自己的 rime-data.js 也得带；document.write 是为了保持同步加载顺序，别改成 defer/async。 -->
+<script>
+window.FLOW_ASSET_V = new URLSearchParams(location.search).get('v') || '';
+document.write('<script src="rime-data.js' + (window.FLOW_ASSET_V ? '?v=' + window.FLOW_ASSET_V : '') + '"><\/script>');
+</script>
 <script>
 const SCHEMES = { keytao: 'keytao.img', '27': '27.img', '27c': '27c.img' };
 const which = new URLSearchParams(location.search).get('scheme') || 'keytao';

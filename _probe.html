@@ -9,9 +9,12 @@ code{color:#e9a33c}</style>
 <code>resetUser()</code> 清当前方案的用户数据、<code>fsList('/user')</code> 看内存文件系统。
 换方案：<code>?scheme=27c</code>（可 <code>keytao</code> / <code>27</code> / <code>27c</code>，默认 keytao）。</p>
 <pre id="log">loading…</pre>
-<!-- 版本号跟主页同一个来源：页面 URL 上的 ?v=...（没有就不带，等于关掉缓存穿透） -->
-<script>window.FLOW_ASSET_V = new URLSearchParams(location.search).get('v') || '';</script>
-<script src="rime-data.js"></script>
+<!-- 版本号跟主页同一个来源：页面 URL 上的 ?v=...（没有就不带，等于关掉缓存穿透）。
+     自己的 rime-data.js 也得带；document.write 是为了保持同步加载顺序，别改成 defer/async。 -->
+<script>
+window.FLOW_ASSET_V = new URLSearchParams(location.search).get('v') || '';
+document.write('<script src="rime-data.js' + (window.FLOW_ASSET_V ? '?v=' + window.FLOW_ASSET_V : '') + '"><\/script>');
+</script>
 <script>
 /* 和 index.html 同一套加载流程（base 镜像 + 该方案的镜像），只是没有演示循环 */
 const SCHEMES = { keytao: 'keytao.img', '27': '27.img', '27c': '27c.img' };

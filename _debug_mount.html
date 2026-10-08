@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>镜像挂载自检</title>
+<style>body{font:13px/1.6 ui-monospace,Menlo,monospace;background:#111;color:#ddd;padding:14px}
+pre{background:#1b1b1b;padding:10px;border-radius:8px;white-space:pre-wrap}</style>
+</head><body>
+<h3>镜像挂载自检</h3>
+<p>把 <code>data/base.img</code> 与各方案镜像挂进内存文件系统，打印文件数与 wasm 侧日志
+（<code>/tmp/rime-mount.log</code>）。<code>?scheme=27c</code> 换方案。</p>
+<pre id="log">loading…</pre>
+<!-- 版本号跟主页同一个来源：页面 URL 上的 ?v=...（没有就不带，等于关掉缓存穿透） -->
+<script>window.FLOW_ASSET_V = new URLSearchParams(location.search).get('v') || '';</script>
+<script src="rime-data.js"></script>
+<script>
+const SCHEMES = { keytao: 'keytao.img', '27': '27.img', '27c': '27c.img' };
+const which = new URLSearchParams(location.search).get('scheme') || 'keytao';
+const log = (s) => { document.querySelector('#log').textContent += '\n' + s; };
+loadScript(asset('rime.js')).then(() => createRime({ locateFile: (f) => asset(f) })).then(async (M) => {
+  const call = (n, r, a, v) => M.ccall(n, r, a, v);
+  for (const img of ['data/base.img', 'data/' + (SCHEMES[which] || SCHEMES.keytao)]) {
+    const t0 = performance.now();
+    const info = await loadRimeData(M, call, { asset, image: img, onProgress: (p, s) => log('  ' + Math.round(p * 100) + '% ' + s) });
+    log('OK ' + img + '  ' + info.files + ' 个文件  ' + (info.bytes / 1048576).toFixed(2) + ' MB  ' +
+        Math.round(performance.now() - t0) + ' ms');
+  }
+  const list = (dir) => { try { return M.FS.readdir(dir).sort().join('  '); } catch (e) { return '(无)'; } };
+  log('\n/shared: ' + list('/shared'));
+  log('\n/user: ' + list('/user'));
+  log('\n/user/lua: ' + list('/user/lua'));
+  log('\n/user/build: ' + list('/user/build'));
+  log('\n/tmp/rime-mount.log:\n' + (function () { try { return M.FS.readFile('/tmp/rime-mount.log', { encoding: 'utf8' }); } catch (e) { return '(没有)'; } })());
+}).catch((e) => log('失败：' + (e && e.message || e)));
+</script>
+</body></html>

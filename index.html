@@ -177,9 +177,20 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .mk-block::after{content:'';position:absolute;left:4px;top:6px;width:7px;height:2px;border-radius:1px;background:#fff}
 .mk-sec{width:9px;height:9px;background:#a97bff;transform:rotate(45deg)}
 .ime-stage.loading .ime-hud{opacity:0;pointer-events:none}
-.ime-hud{position:absolute;right:18px;bottom:16px;transition:opacity .18s;display:flex;align-items:flex-end;gap:12px;
+/* 默认不显示；按到 空格 / - / = 时瞬间冒出来，停一下再淡出缩小 */
+.ime-hud{position:absolute;right:18px;bottom:16px;opacity:0;
+  animation:none;display:flex;align-items:flex-end;gap:12px;
   background:rgba(14,17,22,.94);border:1px solid var(--line2);border-radius:12px;padding:10px 12px;
   box-shadow:0 10px 26px rgba(0,0,0,.5)}
+.ime-hud.pop{animation:hudPop 1.15s cubic-bezier(.2,.7,.2,1) both}
+@keyframes hudPop{
+  0%{opacity:1;transform:scale(1) translateY(0)}
+  58%{opacity:1;transform:scale(1) translateY(0)}
+  100%{opacity:0;transform:scale(.86) translateY(6px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .ime-hud.pop{animation:none;opacity:1}
+}
 .ime-hud .now{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:74px}
 .ime-cap{width:58px;height:58px;border-radius:12px;display:grid;place-items:center;
   background:linear-gradient(#39404d,#232830);border:2px solid #4b5464;color:#fff;
@@ -201,7 +212,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
   .ime-ta,.ime-ov{font-size:17px}
   .ime-ta{padding:20px 16px 40px}
   .cd{font-size:18px;padding:6px 14px}
-  .ime-hud{transform:scale(.86);transform-origin:bottom right;right:8px;bottom:8px}
+  .ime-hud{scale:.86;transform-origin:bottom right;right:8px;bottom:8px}
 }
 .ime-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
 .seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden}
@@ -442,7 +453,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '1';
+  const BUILD = '2';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
                  'data/demos.js', 'ime.js'];

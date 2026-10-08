@@ -31,6 +31,8 @@ const PACE = {
 
 const KEYCODE = { space: 0x20, Tab: 0xff09, Enter: 0xff0d, Esc: 0xff1b, BackSpace: 0xff08 };
 const USER_DATA_RE = /\.userdb$|\.(order|userdb)\.txt$/;
+/* 右下角浮层只报这三个键 */
+const HUD_KEYS = ['space', '-', '='];
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
 class ImePreview {
@@ -78,6 +80,7 @@ class ImePreview {
       cap: root.querySelector('.ime-cap'),
       capLbl: root.querySelector('.ime-caplbl'),
       trailEl: root.querySelector('.ime-trail'),
+      hud: root.querySelector('.ime-hud'),
     };
 
     /* textarea：已上屏文字的载体。原生行为都要留着，只在下面这些时刻回调。 */
@@ -501,6 +504,9 @@ class ImePreview {
   }
 
   showKey(k) {
+    this.onKey(k);                       /* 上面的键位图：每个键都亮 */
+    /* 右下角这个浮层只报动作键（空格 / - / =）—— 音码笔码靠键位图上的高亮就够了 */
+    if (!HUD_KEYS.includes(k)) return;
     const [label, what, cls] = this.keyInfo(k);
     const cap = this.el.cap;
     cap.className = 'ime-cap' + (cls ? ' ' + cls : '') + (label.length > 1 ? ' small' : '');
@@ -509,18 +515,26 @@ class ImePreview {
     this.el.capLbl.textContent = what;
     cap.classList.remove('hit'); void cap.offsetWidth; cap.classList.add('hit');
 
-    const mini = { '空格': '空', 'Tab': 'Tb', '⌫': '退' };
+    const mini = { '空格': '空' };
     this.trail.push({ label: mini[label] || label, cls, small: label.length > 1 });
     if (this.trail.length > 6) this.trail.shift();
     this.el.trailEl.innerHTML = this.trail.map((t, i) =>
       '<span class="mini' + (t.cls ? ' ' + t.cls : '') + (t.small ? ' small' : '') +
       '" style="' + (i === this.trail.length - 1 ? '' : 'opacity:.45') + '">' + t.label + '</span>'
     ).join('');
-    this.onKey(k);
+
+    /* 瞬间出现（动画 0% 帧就是不透明），停一下再淡出缩小 */
+    const hud = this.el.hud;
+    if (hud) {
+      hud.classList.remove('pop');
+      void hud.offsetWidth;
+      hud.classList.add('pop');
+    }
   }
 
   /** 清掉右下角那组按键显示（键帽 + 轨迹） */
   resetHud(label) {
+    if (this.el.hud) this.el.hud.classList.remove('pop');
     this.trail = [];
     if (this.el.trailEl) this.el.trailEl.innerHTML = '';
     if (this.el.cap) {

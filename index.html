@@ -138,7 +138,10 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 .ime-ta[readonly]{cursor:default;user-select:none;-webkit-user-select:none}
 /* 组字（preedit）浮层：绝对定位在 textarea 里组字开始的位置，带音 / 形配色 */
 .ime-ov{position:absolute;left:0;top:0;display:none;white-space:pre;pointer-events:none;z-index:3;
-  color:#e6e9ee;font:22px/1.6 var(--sans)}
+  color:#e6e9ee;font:22px/1.6 var(--sans);
+  /* 还没上屏的组字：跟普通输入法一样带下划线 */
+  text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px;
+  text-decoration-color:rgba(233,163,60,.72)}
 .ime-ov.on{display:block}
 .ime-ov .sh{color:var(--shape)}
 .ime-ov .mk{color:var(--gold)}
@@ -457,7 +460,7 @@ code,kbd{font-family:var(--mono);font-size:.92em}
 window.__loaded = (function () {
   /* BUILD：页面自己脚本的版本号。改了 ime.js / data/*.js 就把它 +1，
      这样即使用户没带 ?v= 也不会继续吃旧缓存。 */
-  const BUILD = '5';
+  const BUILD = '6';
   const v = new URLSearchParams(location.search).get('v') || BUILD;
   const files = ['rime-data.js', 'schemes.js', 'data/sizes.js', 'data/layouts.js',
                  'data/demos.js', 'ime.js'];

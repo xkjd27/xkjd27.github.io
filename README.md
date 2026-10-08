@@ -67,13 +67,13 @@ web/data/sizes.js      各镜像体积（页面上那句「首次点开要下 7.
 
 ## 演示剧本是「录」出来的
 
-`data/demos.js` 不是手写的：`tools/record_demo.py` 用原生 librime
+`data/demos.js` 不是手写的：仓库外的 `../tools/record_demo.py` 用原生 librime
 （`tools/flow_engine_probe.c` 的 `--repl` 模式）把整场戏喂一遍，词库、权重、
 lua 任一改动重录一次即可：
 
 ```sh
-python3 tools/record_demo.py                 # 三个方案，写 web/data/demos.js
-python3 tools/record_demo.py --schemes 27c -v
+python3 ../tools/record_demo.py                 # 三个方案，写 web/data/demos.js
+python3 ../tools/record_demo.py --schemes 27c -v
 ```
 
 录音脚本干的事：从方案词库读每个词的方案码 → 敲码 → 如果候选里目标词不在首选，
@@ -96,17 +96,23 @@ python3 tools/record_demo.py --schemes 27c -v
 ## 重新生成
 
 ```sh
-# 1) 编 wasm（改了 api.cpp / 升级 librime 才需要）
-bash tools/wasm-build/build-librime.sh
-# 2) 导出三个方案的数据镜像 + 键位表（改了 lua / 词库 / 方案 / 键位后需要）
-bash tools/wasm-build/export-data.sh
-#    只要其中几个：export-data.sh 27c keytao
-# 3) 重录演示（词库 / 权重 / lua 变了）
-python3 tools/record_demo.py
+# 一条命令：拉/更新三个方案仓库 → （需要时）编 wasm → 部署 → 重打四个 img + 键位表
+cd <网站仓库根> && bash tools/wasm-build/build-all.sh
 ```
 
-中间产物（散文件，约 34 MB）在 `build/wasmdata/`，**不在 `web/` 里**：`web/` 是
-docroot，部署时整份上传，浏览器只读 `data/*.img`。
+细分的话（都等价于上面一条命令的一部分，细节与依赖见 `tools/wasm-build/README.md`）：
+
+```sh
+# 1) 编 wasm（只在改了 api.cpp / 升级 librime 时需要；build-all.sh 会自己跳过）
+bash tools/wasm-build/build-librime.sh
+# 2) 部署三个方案 → 拆成 data/base.img + 每个方案一个 img + layouts.js/sizes.js
+bash tools/wasm-build/export-data.sh            # 只要其中几个：export-data.sh 27c keytao
+# 3) 重录演示（词库 / 权重 / lua 变了；脚本在仓库外的 tools/record_demo.py）
+python3 ../tools/record_demo.py
+```
+
+中间产物（散文件，约 34 MB）在**网站仓库上一级**的 `build/wasmdata/`（`XKJD_WORK`
+可换），**不在 `web/` 里**：`web/` 是 docroot，部署时整份上传，浏览器只读 `data/*.img`。
 
 资产带缓存穿透：`/?v=3` 会给 `rime.js` / `rime.wasm` / `data/*.img` / 页面自己的
 `*.js` 都带上 `?v=3`，改完刷新页面时记得加上。

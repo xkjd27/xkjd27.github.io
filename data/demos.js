@@ -251,6 +251,7 @@ window.FLOW_DEMOS = {
    "p",
    "s",
    "b",
+   "a",
    "."
   ],
   "phrase": "泥菩萨过江自身难保",
@@ -392,6 +393,7 @@ window.FLOW_DEMOS = {
      "p",
      "s",
      "b",
+     "a",
      "."
     ],
     "kind": "keys",
@@ -402,7 +404,7 @@ window.FLOW_DEMOS = {
      13,
      17,
      22,
-     26
+     27
     ],
     "title": "⑦ 重新输入修改后的整句"
    },
